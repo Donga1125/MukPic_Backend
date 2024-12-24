@@ -1,13 +1,13 @@
-package com.I4U.mukpic;
+package i4U.mukPic;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class MukpicApplication {
+public class MukPicApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(MukpicApplication.class, args);
+		SpringApplication.run(MukPicApplication.class, args);
 	}
 
 }

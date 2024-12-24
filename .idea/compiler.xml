@@ -1,9 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$PROJECT_DIR$/../.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.36/5a30490a6e14977d97d9c73c924c1f1b5311ea95/lombok-1.18.36.jar" />
+        </processorPath>
+        <module name="mukPic.main" />
+      </profile>
+    </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="mukpic.mukpic.main" target="17" />
-      <module name="mukpic.mukpic.test" target="17" />
+      <module name="com.I4U.mukpic" target="17" />
+      <module name="com.I4U.mukpic.main" target="17" />
+      <module name="com.I4U.mukpic.test" target="17" />
+      <module name="MukPic_Backend.mukpic" target="17" />
+      <module name="MukPic_Backend.mukpic.main" target="17" />
+      <module name="MukPic_Backend.mukpic.test" target="17" />
     </bytecodeTargetLevel>
   </component>
 </project>
