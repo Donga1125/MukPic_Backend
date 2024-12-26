@@ -81,7 +81,7 @@ jobs:
         with:
           key: ${{secrets.EC2_KEY}}
           host: ${{secrets.EC2_HOST}}
-          username: ubuntu
+          username: ec2-user
           port: ${{secrets.EC2_PORT}}
           script: |
             whoami
