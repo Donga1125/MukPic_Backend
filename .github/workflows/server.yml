@@ -58,7 +58,7 @@ jobs:
         continue-on-error: true
 
       - name: Run scripts in server
-        uses: appleboy/ssh-action@v0.1.16
+        uses: appleboy/ssh-action@master
         with:
           key: ${{secrets.EC2_KEY}}
           host: ${{secrets.EC2_HOST}}
