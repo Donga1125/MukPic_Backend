@@ -11,10 +11,6 @@ jobs:
   server:
     runs-on: ubuntu-latest
 
-    env:
-      AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
@@ -39,26 +35,31 @@ jobs:
       - name: Set up Docker tag
         id: docker_tag
         run: |
+          # Fetch latest Docker tag
           latest_tag=$(curl -s -u "${{ secrets.DOCKER_HUB_USERNAME }}:${{ secrets.DOCKER_HUB_PASSWORD }}" \
             "https://hub.docker.com/v2/repositories/${{ secrets.DOCKER_HUB_USERNAME }}/mukpic-server/tags" \
             | jq -r '.results[].name | select(test("^v[0-9]+$"))' | sort | tail -n 1)
 
+          # Increment the version or set to 1 if no tags exist
           if [[ $latest_tag =~ ^v([0-9]+)$ ]]; then
             new_version=$((BASH_REMATCH[1] + 1))
           else
             new_version=1
           fi
 
+          # Set the new tag as environment variable
           echo "new_tag=v$new_version" >> $GITHUB_ENV
-          echo "New Docker tag: v$new_version"
 
       - name: Docker build and push
+        env:
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
         run: |
-          docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_PASSWORD }}
+          docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
           cd server
           docker build -t mukpic-server .
-          docker tag mukpic-server ${{ secrets.DOCKER_HUB_USERNAME }}/mukpic-server:${{ env.new_tag }}
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/mukpic-server:${{ env.new_tag }}
+          docker tag mukpic-server $DOCKER_HUB_USERNAME/mukpic-server:${{ env.new_tag }}
+          docker push $DOCKER_HUB_USERNAME/mukpic-server:${{ env.new_tag }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -69,10 +70,8 @@ jobs:
 
       - name: Restart Docker container
         run: |
-          container_id=$(docker ps -aqf "name=mukpic-server")
-          if [ -n "$container_id" ]; then
-            echo "Stopping and removing existing container: $container_id"
-            docker stop $container_id
-            docker rm $container_id
+          if docker ps -a --format '{{.Names}}' | grep -q '^mukpic-server$'; then
+            docker stop mukpic-server
+            docker rm mukpic-server
           fi
           docker run -d --name mukpic-server -p 8080:8080 ${{ secrets.DOCKER_HUB_USERNAME }}/mukpic-server:${{ env.new_tag }}
