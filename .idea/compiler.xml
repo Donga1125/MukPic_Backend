@@ -10,7 +10,7 @@
         <module name="mukPic.main" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
+    <bytecodeTargetLevel target="17">
       <module name="com.I4U.mukpic" target="17" />
       <module name="com.I4U.mukpic.main" target="17" />
       <module name="com.I4U.mukpic.test" target="17" />
