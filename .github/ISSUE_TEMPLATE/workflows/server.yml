@@ -32,24 +32,6 @@ jobs:
       - name: Install jq
         run: sudo apt-get install -y jq
 
-      - name: Set up Docker tag
-        id: docker_tag
-        run: |
-          # Fetch latest Docker tag
-          latest_tag=$(curl -s -u "${{ secrets.DOCKER_HUB_USERNAME }}:${{ secrets.DOCKER_HUB_PASSWORD }}" \
-            "https://hub.docker.com/v2/repositories/${{ secrets.DOCKER_HUB_USERNAME }}/mukpic-server/tags" \
-            | jq -r '.results[].name | select(test("^v[0-9]+$"))' | sort | tail -n 1)
-
-          # Increment the version or set to 1 if no tags exist
-          if [[ $latest_tag =~ ^v([0-9]+)$ ]]; then
-            new_version=$((BASH_REMATCH[1] + 1))
-          else
-            new_version=1
-          fi
-
-          # Set the new tag as environment variable
-          echo "new_tag=v$new_version" >> $GITHUB_ENV
-
       - name: Docker build and push
         env:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
@@ -58,8 +40,8 @@ jobs:
           docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
           cd server
           docker build -t mukpic-server .
-          docker tag mukpic-server $DOCKER_HUB_USERNAME/mukpic-server:${{ env.new_tag }}
-          docker push $DOCKER_HUB_USERNAME/mukpic-server:${{ env.new_tag }}
+          docker tag mukpic-server $DOCKER_HUB_USERNAME/mukpic-server:v1
+          docker push $DOCKER_HUB_USERNAME/mukpic-server:v1
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -74,4 +56,4 @@ jobs:
             docker stop mukpic-server
             docker rm mukpic-server
           fi
-          docker run -d --name mukpic-server -p 8080:8080 ${{ secrets.DOCKER_HUB_USERNAME }}/mukpic-server:${{ env.new_tag }}
+          docker run -d --name mukpic-server -p 8080:8080 ${{ secrets.DOCKER_HUB_USERNAME }}/mukpic-server:v1
