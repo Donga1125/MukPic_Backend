@@ -19,7 +19,7 @@ public class Allergy {
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_allergies", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "allergy_type")
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = AllergyType.AllergyTypeConverter.class)
     private Set<AllergyType> allergies = new HashSet<>();
 
     @OneToOne
