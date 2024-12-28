@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/community")
 public class CommunityController {
+    //test
     @GetMapping
     public ResponseEntity<String> getAllFeed() {
             return ResponseEntity.ok("test");
