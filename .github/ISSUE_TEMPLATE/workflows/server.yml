@@ -12,9 +12,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      AWS_ACCESS_KEY: ${{secrets.AWS_ACCESS_KEY}}
-      AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-      #JWT_SECRET_KEY: ${{secrets.JWT_SECRET_KEY}}
+      AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     steps:
       - name: Checkout Code
@@ -34,26 +33,24 @@ jobs:
         working-directory: ./server
         run: ./gradlew build
 
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
       - name: Set up Docker tag
         id: docker_tag
         run: |
-          # Fetch the latest tag from Docker Hub
           latest_tag=$(curl -s -u "${{ secrets.DOCKER_HUB_USERNAME }}:${{ secrets.DOCKER_HUB_PASSWORD }}" \
             "https://hub.docker.com/v2/repositories/${{ secrets.DOCKER_HUB_USERNAME }}/mukpic-server/tags" \
-            | jq -r '.results | map(.name) | map(select(test("^v[0-9]+$"))) | sort | last')
+            | jq -r '.results[].name | select(test("^v[0-9]+$"))' | sort | tail -n 1)
 
-          # Increment the tag version
           if [[ $latest_tag =~ ^v([0-9]+)$ ]]; then
             new_version=$((BASH_REMATCH[1] + 1))
           else
             new_version=1
           fi
 
-          # Save the new tag to environment variables
           echo "new_tag=v$new_version" >> $GITHUB_ENV
-
-      - name: Install jq
-        run: sudo apt-get install -y jq
+          echo "New Docker tag: v$new_version"
 
       - name: Docker build and push
         run: |
@@ -66,26 +63,16 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY}}
-          aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-      - name: Check if container exists
+      - name: Restart Docker container
         run: |
-          if docker ps -a --format '{{.Names}}' | grep -q '^mukpic-server$'; then
-            docker rm -f mukpic-server
+          container_id=$(docker ps -aqf "name=mukpic-server")
+          if [ -n "$container_id" ]; then
+            echo "Stopping and removing existing container: $container_id"
+            docker stop $container_id
+            docker rm $container_id
           fi
-        continue-on-error: true
-
-      - name: Run scripts in server
-        uses: appleboy/ssh-action@master
-        with:
-          key: ${{secrets.EC2_KEY}}
-          host: ${{secrets.EC2_HOST}}
-          username: ec2-user
-          port: ${{secrets.EC2_PORT}}
-          script: |
-            whoami
-            sudo docker login -u ${{secrets.DOCKER_HUB_USERNAME}} -p ${{secrets.DOCKER_HUB_PASSWORD}}
-            sudo docker pull ${{secrets.DOCKER_HUB_USERNAME}}/mukpic-server:${{ env.new_tag }}
-            sudo docker-compose -f ./docker-compose.yml up -d
+          docker run -d --name mukpic-server -p 8080:8080 ${{ secrets.DOCKER_HUB_USERNAME }}/mukpic-server:${{ env.new_tag }}
