@@ -8,8 +8,8 @@ on:
       - 'mukpic/**'
 
 jobs:
-  server:
-    runs-on: self-hosted
+  client:
+    runs-on: ubuntu-latest
     
     env:
       AWS_ACCESS_KEY: ${{secrets.AWS_ACCESS_KEY}}
@@ -62,7 +62,7 @@ jobs:
         with:
           key: ${{secrets.EC2_KEY}}
           host: ${{secrets.EC2_HOST}}
-          username: ec2-user
+          username: ubuntu
           port: ${{secrets.EC2_PORT}}
           script: |
             whoami
