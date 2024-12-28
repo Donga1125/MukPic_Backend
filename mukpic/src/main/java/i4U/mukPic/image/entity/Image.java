@@ -1,5 +1,6 @@
 package i4U.mukPic.image.entity;
 
+import i4U.mukPic.global.config.Timestamped;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "images")
-public class Image {
+public class Image extends Timestamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
