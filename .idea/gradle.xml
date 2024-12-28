@@ -8,7 +8,7 @@
         <option name="gradleJvm" value="openjdk-22" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/mukPic" />
+            <option value="$PROJECT_DIR$/mukpic" />
           </set>
         </option>
       </GradleProjectSettings>
