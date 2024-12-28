@@ -2,7 +2,8 @@ name: Server Deploy
 
 on:
   push:
-    branches: [dev]
+    branches:
+      - dev
     paths:
       - 'mukpic/**'
 
