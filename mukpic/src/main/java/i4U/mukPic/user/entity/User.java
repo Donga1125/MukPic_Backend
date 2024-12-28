@@ -34,19 +34,19 @@ public class User {
     private String image;
 
     @Column(nullable = false)
-    private Boolean agree; //약관 동의 여부
+    private Boolean agree; // 약관 동의 여부
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = Role.RoleConverter.class)
     private Role role;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = LoginType.LoginTypeConverter.class)
     private LoginType loginType;
 
-    @Enumerated(EnumType.STRING)
-    private UserStatus userStatus; //회원 탈퇴 여부
-
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = Religion.ReligionConverter.class)
     private Religion religion;
+
+    @Convert(converter = UserStatus.UserStatusConverter.class)
+    private UserStatus userStatus; // 회원 탈퇴 여부
 
     private String nationality;
 
@@ -79,7 +79,7 @@ public class User {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public void updateUserStatus (UserStatus userStatus){
+    public void updateUserStatus(UserStatus userStatus) {
         this.userStatus = userStatus;
     }
 
@@ -87,23 +87,24 @@ public class User {
         this.password = password;
     }
 
-    public void updateAgree (Boolean agree) {this.agree = agree; }
+    public void updateAgree(Boolean agree) {
+        this.agree = agree;
+    }
 
-    public void updateImage (String image){
+    public void updateImage(String image) {
         this.image = image;
     }
 
-    public void updateUserName (String userName){
+    public void updateUserName(String userName) {
         this.userName = userName;
     }
 
-    public void updateRole (Role role) {
+    public void updateRole(Role role) {
         this.role = role;
     }
 
     public void setAllergy(Allergy allergy) {
         this.allergy = allergy;
-        // 양방향 매핑을 위해 allergy에도 user 설정
         if (allergy != null) {
             allergy.setUser(this);
         }
@@ -123,5 +124,4 @@ public class User {
     public ChronicDisease getChronicDisease() {
         return chronicDisease;
     }
-
 }
