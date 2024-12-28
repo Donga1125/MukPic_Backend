@@ -19,7 +19,7 @@ public class ChronicDisease {
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_chronic_diseases", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "disease_type")
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = ChronicDiseaseType.ChronicDiseaseTypeConverter.class)
     private Set<ChronicDiseaseType> diseases = new HashSet<>();
 
     @OneToOne
