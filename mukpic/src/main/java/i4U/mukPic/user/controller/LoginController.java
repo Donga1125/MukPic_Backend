@@ -28,4 +28,5 @@ public class LoginController {
 
         return ResponseEntity.ok(response);
     }
+
 }

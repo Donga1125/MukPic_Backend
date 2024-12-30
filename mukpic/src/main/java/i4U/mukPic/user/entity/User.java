@@ -124,4 +124,5 @@ public class User {
     public ChronicDisease getChronicDisease() {
         return chronicDisease;
     }
+
 }
