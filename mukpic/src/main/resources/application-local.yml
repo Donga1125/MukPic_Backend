@@ -63,4 +63,7 @@ cloud:
 
 jwt:
   secret-key: ${JWT_SECRET_KEY}
-  expiration-time: 3600000 # 1 hour in milliseconds
+  access:
+    expiration-time: 3600000 # 1 hour in milliseconds
+  refresh:
+    expiration-time: 1209600000

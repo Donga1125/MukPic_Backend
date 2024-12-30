@@ -17,13 +17,13 @@ public class Allergy {
     private Long id;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_allergies", joinColumns = @JoinColumn(name = "user_id"))
+    @CollectionTable(name = "user_allergies", joinColumns = @JoinColumn(name = "userKey"))
     @Column(name = "allergy_type")
     @Convert(converter = AllergyType.AllergyTypeConverter.class)
     private Set<AllergyType> allergies = new HashSet<>();
 
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "userKey")
     private User user;
 
     public void setUser(User user) {

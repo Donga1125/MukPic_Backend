@@ -17,13 +17,13 @@ public class ChronicDisease {
     private Long id;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_chronic_diseases", joinColumns = @JoinColumn(name = "user_id"))
+    @CollectionTable(name = "user_chronic_diseases", joinColumns = @JoinColumn(name = "userKey"))
     @Column(name = "disease_type")
     @Convert(converter = ChronicDiseaseType.ChronicDiseaseTypeConverter.class)
     private Set<ChronicDiseaseType> diseases = new HashSet<>();
 
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "userKey")
     private User user;
 
     public void setUser(User user) {
