@@ -99,6 +99,14 @@ public class User {
         this.userName = userName;
     }
 
+    public void updateNationality(String nationality) {
+        this.nationality = nationality;
+    }
+
+    public void updateReligion(Religion religion) {
+        this.religion = religion;
+    }
+
     public void updateRole(Role role) {
         this.role = role;
     }
@@ -124,5 +132,24 @@ public class User {
     public ChronicDisease getChronicDisease() {
         return chronicDisease;
     }
+
+    public void updateAllergy(Allergy newAllergy) {
+        if (newAllergy != null) {
+            this.allergy = newAllergy;
+            newAllergy.setUser(this); // 양방향 관계 설정
+        } else {
+            this.allergy = null; // null로 초기화 가능
+        }
+    }
+
+    public void updateChronicDisease(ChronicDisease newChronicDisease) {
+        if (newChronicDisease != null) {
+            this.chronicDisease = newChronicDisease;
+            newChronicDisease.setUser(this); // 양방향 관계 설정
+        } else {
+            this.chronicDisease = null; // null로 초기화 가능
+        }
+    }
+
 
 }

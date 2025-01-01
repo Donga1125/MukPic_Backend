@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class LoginController {
 
@@ -21,21 +21,17 @@ public class LoginController {
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
-        // 로그인 서비스 호출하여 토큰 생성
-        String token = loginService.login(loginRequest);
+        // 로그인 서비스 호출
+        Map<String, String> tokens = loginService.login(loginRequest);
 
         // JSON 응답 본문 생성
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("status", "success");
         responseBody.put("message", "Login successful");
+        responseBody.put("accessToken", tokens.get("accessToken"));
+        responseBody.put("refreshToken", tokens.get("refreshToken"));
 
-        // 응답 헤더에 Authorization 추가
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.AUTHORIZATION, TokenKey.TOKEN_PREFIX + token);
-
-        // 헤더와 JSON 본문을 포함한 응답 반환
-        return ResponseEntity.ok()
-                .headers(headers)
-                .body(responseBody);
+        return ResponseEntity.ok(responseBody);
     }
+
 }

@@ -8,7 +8,7 @@ import org.springframework.data.redis.core.index.Indexed;
 
 @Getter
 @AllArgsConstructor
-@RedisHash(value = "jwt", timeToLive = 60 * 60 * 24 * 7)
+@RedisHash(value = "jwt", timeToLive = 60 * 60 * 24 * 14)
 public class Token {
 
     @Id
@@ -27,4 +27,5 @@ public class Token {
     public void updateAccessToken(String accessToken) {
         this.accessToken = accessToken;
     }
+
 }

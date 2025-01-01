@@ -31,8 +31,14 @@ public class TokenService {
     }
 
     public Token findByAccessTokenOrThrow(String accessToken) {
+        // 로그 추가: Access Token으로 Redis 조회 시도
+        log.info("Finding Token by Access Token: {}", accessToken);
+
         return tokenRepository.findByAccessToken(accessToken)
-                .orElseThrow(() -> new TokenException(TOKEN_EXPIRED));
+                .orElseThrow(() -> {
+                    log.error("Token not found for Access Token: {}", accessToken);
+                    return new TokenException(TOKEN_EXPIRED);
+                });
     }
 
     @Transactional

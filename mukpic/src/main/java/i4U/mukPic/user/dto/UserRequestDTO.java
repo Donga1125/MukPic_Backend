@@ -63,8 +63,12 @@ public class UserRequestDTO {
     @Getter
     @NoArgsConstructor
     public static class Patch {
-        private String userName;
-        private String image;
+        private String userName;             // 사용자 이름
+        private String image;                // 프로필 이미지
+        private String nationality;          // 국적
+        private Religion religion;           // 종교
+        private List<String> allergyTypes;   // 알러지 정보
+        private List<String> chronicDiseases; // 만성질환 정보
     }
 
     @Getter

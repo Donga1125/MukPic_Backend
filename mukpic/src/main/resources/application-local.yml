@@ -66,4 +66,4 @@ jwt:
   access:
     expiration-time: 3600000 # 1 hour in milliseconds
   refresh:
-    expiration-time: 1209600000
+    expiration-time: 1209600000 #2주
