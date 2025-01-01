@@ -28,10 +28,15 @@ public class LoginController {
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("status", "success");
         responseBody.put("message", "Login successful");
-        responseBody.put("accessToken", tokens.get("accessToken"));
         responseBody.put("refreshToken", tokens.get("refreshToken"));
 
-        return ResponseEntity.ok(responseBody);
+        // 응답 헤더 추가
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + tokens.get("accessToken"));
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(responseBody);
     }
 
 }
