@@ -1,5 +1,6 @@
 package i4U.mukPic.global.jwt.security;
 
+import i4U.mukPic.global.auth.PrincipalDetails;
 import i4U.mukPic.global.auth.entity.Token;
 import i4U.mukPic.global.jwt.service.TokenService;
 import io.jsonwebtoken.*;
@@ -45,9 +46,16 @@ public class JwtTokenProvider {
     }
 
     public String generateAccessToken(Authentication authentication) {
-        // 로그 추가: Authentication의 Name이 이메일인지 확인
-        log.info("Generating Access Token for: {}", authentication.getName());
-        return generateToken(authentication.getName(), authentication.getAuthorities(), accessTokenExpirationTime);
+        String subject;
+
+        if (authentication.getPrincipal() instanceof PrincipalDetails principalDetails) {
+            subject = principalDetails.user().getEmail(); // user 필드에서 이메일 가져오기
+        } else {
+            subject = authentication.getName(); // fallback
+        }
+
+        log.info("Generating Access Token for Subject: {}", subject);
+        return generateToken(subject, authentication.getAuthorities(), accessTokenExpirationTime);
     }
 
     public void generateRefreshToken(Authentication authentication, String accessToken) {

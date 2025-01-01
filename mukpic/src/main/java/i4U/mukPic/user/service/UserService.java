@@ -297,38 +297,18 @@ public class UserService {
     }
 
     @Transactional
-    public boolean deactivateMember(String userId) {
-        // User ID로 사용자 찾기
-        User user = userRepository.findByUserId(userId)
+    public boolean deactivateMember(String userIdOrEmail) {
+        User user = userRepository.findByUserId(userIdOrEmail)
+                .or(() -> userRepository.findByEmail(userIdOrEmail)) // 이메일로 추가 조회
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
 
-        // 이미 비활성화된 경우 예외 처리
         if (user.getUserStatus() == UserStatus.INACTIVE) {
             throw new BusinessLogicException(ExceptionCode.ALREADY_DEACTIVATED_USER);
         }
 
-        // 상태를 비활성화로 변경
         user.updateUserStatus(UserStatus.INACTIVE);
-        userRepository.save(user); // 상태 저장
+        userRepository.save(user);
         return true;
     }
-
-    public Long extractUserKey(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new InvalidTokenException("Authentication is invalid or not authenticated.");
-        }
-
-        // 이메일 확인
-        String email = authentication.getName();
-        if (email == null || email.isEmpty()) {
-            throw new InvalidTokenException("Email is missing in the authentication token.");
-        }
-
-        // 유저 확인
-        return userRepository.findByEmail(email)
-                .map(User::getUserKey)
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
-    }
-
 
 }

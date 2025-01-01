@@ -2,7 +2,11 @@ package i4U.mukPic.global.auth.service;
 
 import i4U.mukPic.global.auth.PrincipalDetails;
 import i4U.mukPic.global.auth.userinfo.OAuth2UserInfo;
+import i4U.mukPic.user.entity.Allergy;
+import i4U.mukPic.user.entity.ChronicDisease;
+import i4U.mukPic.user.entity.DietaryPreference;
 import i4U.mukPic.user.entity.User;
+import i4U.mukPic.user.entity.UserStatus;
 import i4U.mukPic.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
@@ -53,10 +57,51 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     @Transactional
     private User getOrSave(OAuth2UserInfo oAuth2UserInfo) {
         return userRepository.findByEmail(oAuth2UserInfo.email())
+                .map(existingUser -> {
+                    if (existingUser.getUserStatus() == UserStatus.INACTIVE) {
+                        existingUser.updateUserStatus(UserStatus.ACTIVE);
+                    }
+
+                    existingUser.updateUserName(oAuth2UserInfo.name());
+                    existingUser.updateImage(oAuth2UserInfo.profile());
+                    existingUser.updatePassword(oAuth2UserInfo.toEntity().getPassword());
+                    existingUser.updateAgree(oAuth2UserInfo.toEntity().getAgree());
+
+                    Allergy allergy = existingUser.getAllergy();
+                    if (allergy == null) {
+                        allergy = new Allergy();
+                        allergy.setUser(existingUser);
+                        existingUser.setAllergy(allergy);
+                    } else {
+                        allergy.getAllergies().clear();
+                    }
+
+                    ChronicDisease chronicDisease = existingUser.getChronicDisease();
+                    if (chronicDisease == null) {
+                        chronicDisease = new ChronicDisease();
+                        chronicDisease.setUser(existingUser);
+                        existingUser.setChronicDisease(chronicDisease);
+                    } else {
+                        chronicDisease.getDiseases().clear();
+                    }
+
+                    DietaryPreference dietaryPreference = existingUser.getDietaryPreference();
+                    if (dietaryPreference == null) {
+                        dietaryPreference = new DietaryPreference();
+                        dietaryPreference.setUser(existingUser);
+                        existingUser.setDietaryPreference(dietaryPreference);
+                    } else {
+                        dietaryPreference.getPreferences().clear();
+                    }
+
+                    return userRepository.save(existingUser);
+                })
                 .orElseGet(() -> {
+                    // 신규 사용자 생성
                     User user = oAuth2UserInfo.toEntity();
                     user.passwordEncode(getPasswordEncoder()); // 비밀번호 암호화
                     return userRepository.save(user);
                 });
     }
+
 }

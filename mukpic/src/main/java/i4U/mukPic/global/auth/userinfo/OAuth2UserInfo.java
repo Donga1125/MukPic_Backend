@@ -1,5 +1,8 @@
 package i4U.mukPic.global.auth.userinfo;
 
+import i4U.mukPic.user.entity.Allergy;
+import i4U.mukPic.user.entity.ChronicDisease;
+import i4U.mukPic.user.entity.DietaryPreference;
 import i4U.mukPic.global.auth.exception.AuthException;
 import i4U.mukPic.user.entity.LoginType;
 import i4U.mukPic.user.entity.Role;
@@ -35,6 +38,10 @@ public record OAuth2UserInfo(
     }
 
     public User toEntity() {
+        Allergy defaultAllergy = new Allergy();
+        ChronicDisease defaultChronicDisease = new ChronicDisease();
+        DietaryPreference defaultDietaryPreference = new DietaryPreference();
+
         String randomPassword = UUID.randomUUID().toString().replace("-", "").substring(0, 10); // 10자리 비밀번호 생성
         return User.builder()
                 .userId(email)
