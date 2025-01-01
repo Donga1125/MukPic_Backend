@@ -62,6 +62,19 @@ public class UserService {
             }
         }
 
+        DietaryPreference dietaryPreference = user.getDietaryPreference();
+        if (dietaryPreference == null) {
+            dietaryPreference = createDefaultDietaryPreference(register.getDietaryPreferences());
+            dietaryPreference.setUser(user);
+            user.setDietaryPreference(dietaryPreference);
+        } else {
+            dietaryPreference.getPreferences().clear();
+            for (String type : register.getDietaryPreferences()) {
+                DietaryPreferenceType preferenceType = DietaryPreferenceType.valueOf(type.toUpperCase());
+                dietaryPreference.addPreference(preferenceType);
+            }
+        }
+
         userRepository.save(user);
 
         return new UserResponseDTO.DetailUserInfo(user);
@@ -152,46 +165,59 @@ public class UserService {
         return chronicDisease;
     }
 
+    private DietaryPreference createDefaultDietaryPreference(List<String> dietaryPreferences) {
+        DietaryPreference dietaryPreference = new DietaryPreference();
+
+        if (dietaryPreferences != null) {
+            for (String type : dietaryPreferences) {
+                try {
+                    DietaryPreferenceType preferenceType = DietaryPreferenceType.valueOf(type.toUpperCase());
+                    dietaryPreference.addPreference(preferenceType);
+                } catch (IllegalArgumentException e) {
+                    throw new BusinessLogicException(ExceptionCode.INVALID_DIETARY_PREFERENCE_TYPE);
+                }
+            }
+        }
+        return dietaryPreference;
+    }
+
     @Transactional
     public UserResponseDTO.DetailUserInfo updateUser(Long userKey, UserRequestDTO.Patch patch) {
-        // 유저 확인
         User user = userRepository.findById(userKey)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
 
-        // userName 업데이트 및 중복 확인
         if (patch.getUserName() != null && !patch.getUserName().equals(user.getUserName())) {
             checkUserName(patch.getUserName()); // 중복 검사
             user.updateUserName(patch.getUserName());
         }
 
-        // 프로필 이미지 업데이트 (null이 아닐 경우만 업데이트)
         if (patch.getImage() != null) {
             user.updateImage(patch.getImage());
         }
 
-        // 국적 업데이트 (null이 아닐 경우만 업데이트)
         if (patch.getNationality() != null) {
             user.updateNationality(patch.getNationality());
         }
 
-        // 종교 업데이트 (null이 아닐 경우만 업데이트)
         if (patch.getReligion() != null) {
             user.updateReligion(patch.getReligion());
         }
 
-        // 알러지 정보 업데이트
         if (patch.getAllergyTypes() != null) {
             Allergy updatedAllergy = createOrUpdateAllergy(user, patch.getAllergyTypes());
             user.updateAllergy(updatedAllergy);
         }
 
-        // 만성 질환 정보 업데이트
         if (patch.getChronicDiseases() != null) {
             ChronicDisease updatedChronicDisease = createOrUpdateChronicDisease(user, patch.getChronicDiseases());
             user.updateChronicDisease(updatedChronicDisease);
         }
 
-        // 유저 정보 저장
+        if (patch.getDietaryPreferences() != null) {
+            DietaryPreference updatedPreference = createOrUpdateDietaryPreference(user, patch.getDietaryPreferences());
+            user.updateDietaryPreference(updatedPreference);
+        }
+
         userRepository.save(user);
 
         return new UserResponseDTO.DetailUserInfo(user);
@@ -231,6 +257,23 @@ public class UserService {
 
         chronicDisease.setUser(user);
         return chronicDisease;
+    }
+
+    private DietaryPreference createOrUpdateDietaryPreference(User user, List<String> dietaryPreferences) {
+        DietaryPreference dietaryPreference = user.getDietaryPreference() != null ? user.getDietaryPreference() : new DietaryPreference();
+        dietaryPreference.getPreferences().clear();
+
+        for (String type : dietaryPreferences) {
+            try {
+                DietaryPreferenceType preferenceType = DietaryPreferenceType.valueOf(type.toUpperCase());
+                dietaryPreference.addPreference(preferenceType);
+            } catch (IllegalArgumentException e) {
+                throw new BusinessLogicException(ExceptionCode.INVALID_DIETARY_PREFERENCE_TYPE);
+            }
+        }
+
+        dietaryPreference.setUser(user);
+        return dietaryPreference;
     }
 
     //이메일로 회원 확인
