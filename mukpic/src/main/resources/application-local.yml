@@ -33,6 +33,15 @@ spring:
     host: localhost
     port: 6379
 
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_SECRET}
+            scope: profile, email
+
 server:
   port: 8080
 
@@ -54,4 +63,11 @@ cloud:
 
 jwt:
   secret-key: ${JWT_SECRET_KEY}
-  expiration-time: 3600000 # 1 hour in milliseconds
+  access:
+    expiration-time: 3600000 # 1 hour in milliseconds
+  refresh:
+    expiration-time: 1209600000 #2주
+
+openai:
+  api-url: https://api.openai.com/v1/chat/completions
+  api-key: ${OPENAI_SECRET_KEY}

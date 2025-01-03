@@ -5,6 +5,8 @@ import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import i4U.mukPic.global.exception.BusinessLogicException;
+import i4U.mukPic.global.exception.ExceptionCode;
 import i4U.mukPic.image.entity.Image;
 import i4U.mukPic.image.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
@@ -120,8 +122,9 @@ public class ImageService {
 
 
     @Transactional
-    public void deleteImage(String imageUrl) {(imageUrl).orElseThrow(
-                () -> new RuntimeException("파일을 찾을 수 없음"));
+    public void deleteImage(String imageUrl) {
+        Image image = imageRepository.findByImageUrl(imageUrl).orElseThrow(
+                () -> new BusinessLogicException(ExceptionCode.FILE_NOT_FOUND));
 
         try {
             imageRepository.delete(image);
@@ -130,7 +133,7 @@ public class ImageService {
 
         } catch (Exception e) {
             log.error("Failed to delete image with URL {}: {}", imageUrl, e.getMessage(), e);
-            throw new RuntimeException("파일을 삭제 오류");
+            throw new BusinessLogicException(ExceptionCode.FILE_DELETE_ERROR);
         }
     }
 

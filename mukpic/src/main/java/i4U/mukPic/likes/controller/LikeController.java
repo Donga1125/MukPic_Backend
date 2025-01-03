@@ -17,19 +17,19 @@ public class LikeController {
 
     private final LikeService likeService;
 
-    //게시글 좋아요
-    @PostMapping("/community/{community-id}/likes")
-    public ResponseEntity createFeedLikes (@PathVariable("community-id") Long communityId){
+//    //게시글 좋아요
+//    @PostMapping("/community/{community-id}/likes")
+//    public ResponseEntity createFeedLikes (@PathVariable("community-id") Long communityId){
+//
+//        likeService.createFeedLike(userId, feedId);
+//        return ResponseEntity.ok().build();
+//    }
 
-        likeService.createFeedLike(userId, feedId);
-        return ResponseEntity.ok().build();
-    }
-
-    //게시글 좋아요 취소
-    @DeleteMapping("/community/{community-id}/likes")
-    public ResponseEntity deleteFeedLikes (@PathVariable("community-id") Long feedId){
-
-        likeService.deleteFeedLike(userId, feedId);
-        return ResponseEntity.ok().build();
-    }
+//    //게시글 좋아요 취소
+//    @DeleteMapping("/community/{community-id}/likes")
+//    public ResponseEntity deleteFeedLikes (@PathVariable("community-id") Long feedId){
+//
+//        likeService.deleteFeedLike(userId, feedId);
+//        return ResponseEntity.ok().build();
+//    }
 }
