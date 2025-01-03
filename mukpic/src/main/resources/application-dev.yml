@@ -67,3 +67,7 @@ jwt:
     expiration-time: 3600000 # 1 hour in milliseconds
   refresh:
     expiration-time: 1209600000
+
+openai:
+  api-url: https://api.openai.com/v1/chat/completions
+  api-key: ${OPENAI_SECRET_KEY}

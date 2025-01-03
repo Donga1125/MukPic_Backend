@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,7 +17,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.crypto.SecretKey;
 import java.util.*;
@@ -45,24 +45,31 @@ public class JwtTokenProvider {
         this.secretKey = Keys.hmacShaKeyFor(secretKeyString.getBytes());
     }
 
+    // Access Token 생성
     public String generateAccessToken(Authentication authentication) {
-        String subject;
+        String subject = getSubjectFromAuthentication(authentication); // 수정된 부분
+        log.info("Generating Access Token for Subject (userId/email): {}", subject);
 
-        if (authentication.getPrincipal() instanceof PrincipalDetails principalDetails) {
-            subject = principalDetails.user().getEmail(); // user 필드에서 이메일 가져오기
-        } else {
-            subject = authentication.getName(); // fallback
-        }
-
-        log.info("Generating Access Token for Subject: {}", subject);
         return generateToken(subject, authentication.getAuthorities(), accessTokenExpirationTime);
     }
 
+    // Refresh Token 생성
     public void generateRefreshToken(Authentication authentication, String accessToken) {
-        // 로그 추가: Authentication의 Name이 이메일인지 확인
-        log.info("Generating Refresh Token for: {}", authentication.getName());
-        String refreshToken = generateToken(authentication.getName(), authentication.getAuthorities(), refreshTokenExpirationTime);
-        tokenService.saveOrUpdate(authentication.getName(), refreshToken, accessToken);
+        String subject = getSubjectFromAuthentication(authentication); // 수정된 부분
+        log.info("Generating Refresh Token for: {}", subject);
+
+        String refreshToken = generateToken(subject, authentication.getAuthorities(), refreshTokenExpirationTime);
+        tokenService.saveOrUpdate(subject, refreshToken, accessToken);
+    }
+
+    // Subject 설정 로직 추가 (userId 또는 email을 Subject로 설정)
+    private String getSubjectFromAuthentication(Authentication authentication) {
+        if (authentication.getPrincipal() instanceof PrincipalDetails principalDetails) {
+            // PrincipalDetails에서 userId 가져오기
+            return principalDetails.user().getUserId(); // 수정된 부분: userId 사용
+        } else {
+            return authentication.getName(); // 기본적으로 email 사용
+        }
     }
 
     private String generateToken(String subject, Collection<? extends GrantedAuthority> authorities, long expirationTime) {
@@ -71,10 +78,7 @@ public class JwtTokenProvider {
 
         String roles = authorities.stream()
                 .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
-
-        // 로그 추가: Token 생성 시 Subject와 Role 정보 확인
-        log.info("Generating Token - Subject: {}, Roles: {}", subject, roles);
+                .collect(Collectors.joining(",")); // 권한을 콤마로 구분한 문자열로 변환
 
         return Jwts.builder()
                 .setSubject(subject)
@@ -121,7 +125,7 @@ public class JwtTokenProvider {
 
         try {
             Claims claims = parseClaims(token);
-            log.info("Valid token. Claims: {}", claims); // 추가 로그
+            log.info("Valid token. Claims: {}", claims);
             return true;
         } catch (ExpiredJwtException e) {
             log.warn("Token is expired: {}", e.getMessage());
@@ -147,7 +151,7 @@ public class JwtTokenProvider {
         } catch (MalformedJwtException e) {
             log.error("JWT Token is malformed: {}", e.getMessage());
             throw e;
-        } catch (io.jsonwebtoken.security.SecurityException e) { // 대체 예외 클래스 사용
+        } catch (io.jsonwebtoken.security.SecurityException e) {
             log.error("JWT Token signature is invalid: {}", e.getMessage());
             throw e;
         } catch (IllegalArgumentException e) {
@@ -156,25 +160,37 @@ public class JwtTokenProvider {
         }
     }
 
-
+    // Request에서 Access Token 추출
     public Optional<String> extractAccessToken(HttpServletRequest request) {
         return Optional.ofNullable(request.getHeader("Authorization"))
                 .filter(authHeader -> authHeader.startsWith("Bearer "))
                 .map(authHeader -> authHeader.substring(7));
     }
 
-    public Optional<String> extractSubject(String accessToken) {
+    // Request에서 userId 추출 (로컬 및 Google 로그인 사용자 지원) - 추가된 메서드
+    public Optional<String> extractUserIdFromRequest(HttpServletRequest request) {
+        String token = extractAccessToken(request).orElse(null);
+        if (token == null) {
+            return Optional.empty();
+        }
+
         try {
-            Claims claims = parseClaims(accessToken);
-
-            // 로그 추가: Subject(이메일)가 제대로 저장되었는지 확인
-            log.info("Extracted Email (Subject) from Token: {}", claims.getSubject());
-
-            return Optional.ofNullable(claims.getSubject()); // Subject에 이메일이 저장되어 있는지 확인
+            Claims claims = parseClaims(token);
+            return Optional.ofNullable(claims.getSubject()); // Subject에서 userId 또는 email 반환
         } catch (JwtException e) {
-            log.error("Error extracting email from token: {}", e.getMessage());
+            log.error("Failed to extract userId from token: {}", e.getMessage());
             return Optional.empty();
         }
     }
 
+    public Optional<String> extractSubject(String accessToken) {
+        try {
+            Claims claims = parseClaims(accessToken);
+            log.info("Extracted Subject (userId/email) from Token: {}", claims.getSubject());
+            return Optional.ofNullable(claims.getSubject());
+        } catch (JwtException e) {
+            log.error("Error extracting subject from token: {}", e.getMessage());
+            return Optional.empty();
+        }
+    }
 }

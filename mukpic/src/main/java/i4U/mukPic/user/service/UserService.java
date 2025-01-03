@@ -2,19 +2,17 @@ package i4U.mukPic.user.service;
 
 import i4U.mukPic.global.exception.BusinessLogicException;
 import i4U.mukPic.global.exception.ExceptionCode;
-import i4U.mukPic.global.exception.InvalidTokenException;
+import i4U.mukPic.global.jwt.security.JwtTokenProvider;
 import i4U.mukPic.user.dto.UserRequestDTO;
 import i4U.mukPic.user.dto.UserResponseDTO;
 import i4U.mukPic.user.entity.*;
 import i4U.mukPic.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +20,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Transactional
     public UserResponseDTO.DetailUserInfo createUser(UserRequestDTO.Register register) {
@@ -309,6 +308,11 @@ public class UserService {
         user.updateUserStatus(UserStatus.INACTIVE);
         userRepository.save(user);
         return true;
+    }
+
+    public User checkUserByUserId(String userId) {
+        return userRepository.findByUserId(userId)
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
     }
 
 }
