@@ -10,11 +10,11 @@ import java.util.Optional;
 public interface ImageRepository extends JpaRepository<Image, Long> {
 
     // referenceId와 imageType으로 이미지를 조회하는 메소드
-    List<Image> findByReferenceIdAndImageType(Short referenceId, Short imageType);
+    List<Image> findByReferenceIdAndImageType(Long referenceId, Short imageType);
 
-    Optional<Image> findByImageTypeAndReferenceId (Short imageType, Short referenceId);
+    Optional<Image> findByImageTypeAndReferenceId (Long referenceId, Short imageType);
 
     Optional<Image> findByImageUrl (String imageUrl);
 
-    Optional<Image> findByReferenceId (Short referenceId);
+    Optional<Image> findByReferenceId (Long referenceId);
 }

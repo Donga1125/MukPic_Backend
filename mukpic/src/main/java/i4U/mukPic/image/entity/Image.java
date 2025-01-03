@@ -16,7 +16,7 @@ public class Image extends Timestamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long imageKey;
 
     @Column
     private String imageUrl;
@@ -24,15 +24,15 @@ public class Image extends Timestamped {
     private Short imageType;
 
     @Column(nullable = true)
-    private Short referenceId;
+    private Long referenceId;
 
-    public void updateImage (Short imageType, Short referenceId){
+    public void updateImage (Short imageType, Long referenceId){
         this.imageType = imageType;
         this.referenceId = referenceId;
     }
 
     @Builder
-    public Image(String imageUrl, Short imageType, Short referenceId) {
+    public Image(String imageUrl, Short imageType, Long referenceId) {
         this.imageUrl = imageUrl;
         this.imageType = imageType;
         this.referenceId = referenceId;
