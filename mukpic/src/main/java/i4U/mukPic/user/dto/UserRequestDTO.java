@@ -51,8 +51,6 @@ public class UserRequestDTO {
 
         private List<String> chronicDiseaseTypes; // 만성 질환 타입 리스트
 
-        private List<String> dietaryPreferences;
-
     }
 
     @Getter
@@ -65,13 +63,8 @@ public class UserRequestDTO {
     @Getter
     @NoArgsConstructor
     public static class Patch {
-        private String userName;             // 사용자 이름
-        private String image;                // 프로필 이미지
-        private String nationality;          // 국적
-        private Religion religion;           // 종교
-        private List<String> allergyTypes;   // 알러지 정보
-        private List<String> chronicDiseases; // 만성질환 정보
-        private List<String> dietaryPreferences;
+        private String userName;
+        private String image;
     }
 
     @Getter

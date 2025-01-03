@@ -60,9 +60,6 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private ChronicDisease chronicDisease;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private DietaryPreference dietaryPreference; //선호식단
-
     public void passwordEncode(PasswordEncoder passwordEncoder) {
         this.password = passwordEncoder.encode(this.password);
     }
@@ -102,14 +99,6 @@ public class User {
         this.userName = userName;
     }
 
-    public void updateNationality(String nationality) {
-        this.nationality = nationality;
-    }
-
-    public void updateReligion(Religion religion) {
-        this.religion = religion;
-    }
-
     public void updateRole(Role role) {
         this.role = role;
     }
@@ -135,43 +124,4 @@ public class User {
     public ChronicDisease getChronicDisease() {
         return chronicDisease;
     }
-
-    public void updateAllergy(Allergy newAllergy) {
-        if (newAllergy != null) {
-            this.allergy = newAllergy;
-            newAllergy.setUser(this); // 양방향 관계 설정
-        } else {
-            this.allergy = null; // null로 초기화 가능
-        }
-    }
-
-    public void updateChronicDisease(ChronicDisease newChronicDisease) {
-        if (newChronicDisease != null) {
-            this.chronicDisease = newChronicDisease;
-            newChronicDisease.setUser(this); // 양방향 관계 설정
-        } else {
-            this.chronicDisease = null; // null로 초기화 가능
-        }
-    }
-
-    public DietaryPreference getDietaryPreference() {
-        return dietaryPreference;
-    }
-
-    public void setDietaryPreference(DietaryPreference dietaryPreference) {
-        this.dietaryPreference = dietaryPreference;
-        if (dietaryPreference != null) {
-            dietaryPreference.setUser(this);
-        }
-    }
-
-    public void updateDietaryPreference(DietaryPreference newDietaryPreference) {
-        if (newDietaryPreference != null) {
-            this.dietaryPreference = newDietaryPreference;
-            newDietaryPreference.setUser(this); // 양방향 관계 설정
-        } else {
-            this.dietaryPreference = null; // null로 초기화 가능
-        }
-    }
-
 }
