@@ -64,34 +64,29 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
                     existingUser.updateUserName(oAuth2UserInfo.name());
                     existingUser.updateImage(oAuth2UserInfo.profile());
-                    existingUser.updatePassword(oAuth2UserInfo.toEntity().getPassword());
+
+                    String existingPassword = oAuth2UserInfo.toEntity().getPassword();
+                    String encodedPassword = getPasswordEncoder().encode(existingPassword);
+                    existingUser.updatePassword(encodedPassword);
+
                     existingUser.updateAgree(oAuth2UserInfo.toEntity().getAgree());
 
-                    Allergy allergy = existingUser.getAllergy();
-                    if (allergy == null) {
-                        allergy = new Allergy();
+                    if (existingUser.getAllergy() == null) {
+                        Allergy allergy = new Allergy();
                         allergy.setUser(existingUser);
                         existingUser.setAllergy(allergy);
-                    } else {
-                        allergy.getAllergies().clear();
                     }
 
-                    ChronicDisease chronicDisease = existingUser.getChronicDisease();
-                    if (chronicDisease == null) {
-                        chronicDisease = new ChronicDisease();
+                    if (existingUser.getChronicDisease() == null) {
+                        ChronicDisease chronicDisease = new ChronicDisease();
                         chronicDisease.setUser(existingUser);
                         existingUser.setChronicDisease(chronicDisease);
-                    } else {
-                        chronicDisease.getDiseases().clear();
                     }
 
-                    DietaryPreference dietaryPreference = existingUser.getDietaryPreference();
-                    if (dietaryPreference == null) {
-                        dietaryPreference = new DietaryPreference();
+                    if (existingUser.getDietaryPreference() == null) {
+                        DietaryPreference dietaryPreference = new DietaryPreference();
                         dietaryPreference.setUser(existingUser);
                         existingUser.setDietaryPreference(dietaryPreference);
-                    } else {
-                        dietaryPreference.getPreferences().clear();
                     }
 
                     return userRepository.save(existingUser);
