@@ -1,6 +1,5 @@
 package i4U.mukPic.user.controller;
 
-import i4U.mukPic.global.auth.TokenKey; // TokenKey 클래스 임포트
 import i4U.mukPic.user.dto.LoginRequestDTO;
 import i4U.mukPic.user.service.LoginService;
 import jakarta.validation.Valid;
@@ -28,11 +27,11 @@ public class LoginController {
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("status", "success");
         responseBody.put("message", "Login successful");
-        responseBody.put("refreshToken", tokens.get("refreshToken"));
 
         // 응답 헤더 추가
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + tokens.get("accessToken"));
+        headers.add("refreshToken", tokens.get("refreshToken"));
 
         return ResponseEntity.ok()
                 .headers(headers)
