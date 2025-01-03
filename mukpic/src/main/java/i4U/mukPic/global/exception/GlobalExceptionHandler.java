@@ -46,4 +46,58 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
         return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", "An unknown error occurred");
     }
+
+    // 유효하지 않은 토큰 예외 처리
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidTokenException(InvalidTokenException ex) {
+        return createErrorResponse(HttpStatus.UNAUTHORIZED, "Invalid Token", ExceptionCode.JWT_TOKEN_ERROR.getMessage());
+    }
+
+    // 잘못된 매개변수 타입 예외 처리
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, Object>> handleTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+        String parameterName = ex.getName();
+        String parameterType = ex.getRequiredType().getSimpleName();
+        String valueType = (ex.getValue() != null) ? ex.getValue().getClass().getSimpleName() : "null";
+        String message = String.format("Parameter '%s' should be of type %s, but received type %s", parameterName, parameterType, valueType);
+        return createErrorResponse(HttpStatus.BAD_REQUEST, "Invalid Parameter", message);
+    }
+
+    // JSON 파싱 오류 처리
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        Throwable cause = ex.getCause();
+        String message;
+        if (cause instanceof InvalidFormatException) {
+            InvalidFormatException formatException = (InvalidFormatException) cause;
+            String field = formatException.getPath().get(0).getFieldName();
+            String targetType = formatException.getTargetType().getSimpleName();
+            String valueType = (formatException.getValue() != null) ? formatException.getValue().getClass().getSimpleName() : "null";
+            message = String.format("Field '%s' should be of type %s, but received type %s", field, targetType, valueType);
+        } else if (cause instanceof MismatchedInputException) {
+            MismatchedInputException mismatchException = (MismatchedInputException) cause;
+            String field = mismatchException.getPath().isEmpty() ? "unknown" : mismatchException.getPath().get(0).getFieldName();
+            String targetType = mismatchException.getTargetType().getSimpleName();
+            message = String.format("Invalid value for field '%s'. Expected type: %s", field, targetType);
+        } else {
+            message = "Invalid JSON format or content. Please check the request payload.";
+        }
+        return createErrorResponse(HttpStatus.BAD_REQUEST, "Invalid Request Body", message);
+    }
+
+    // Enum 값 오류 처리
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleEnumException(IllegalArgumentException ex) {
+        String message = ex.getMessage() != null ? ex.getMessage() : "Provided value does not match any enum constants.";
+        return createErrorResponse(HttpStatus.BAD_REQUEST, "Invalid Enum Value", message);
+    }
+
+    // 존재하지 않는 엔드포인트 요청 처리
+    @ExceptionHandler(NoHandlerFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<Map<String, Object>> handleNoHandlerFoundException(NoHandlerFoundException ex) {
+        String message = "Endpoint '" + ex.getRequestURL() + "' not found";
+        return createErrorResponse(HttpStatus.NOT_FOUND, "Not Found", message);
+    }
+
 }
