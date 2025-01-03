@@ -14,16 +14,16 @@ public class ChronicDisease {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long chronicDiseaseKey;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_chronic_diseases", joinColumns = @JoinColumn(name = "user_id"))
+    @CollectionTable(name = "user_chronic_diseases", joinColumns = @JoinColumn(name = "chronicDieaseKey"))
     @Column(name = "disease_type")
     @Convert(converter = ChronicDiseaseType.ChronicDiseaseTypeConverter.class)
     private Set<ChronicDiseaseType> diseases = new HashSet<>();
 
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "userKey")
     private User user;
 
     public void setUser(User user) {

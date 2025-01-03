@@ -29,6 +29,7 @@ public class UserResponseDTO {
         private String nationality;
         private List<String> allergies; // 선택된 알러지 목록
         private List<String> chronicDiseases; // 만성질환 목록
+        private List<String> dietaryPreferences;
 
         public DetailUserInfo (User user){
             this.userKey = user.getUserKey();
@@ -48,6 +49,9 @@ public class UserResponseDTO {
                     .toList();
             // 만성 질환 정보 변환
             this.chronicDiseases = user.getChronicDisease().getDiseases().stream()
+                    .map(Enum::name)
+                    .toList();
+            this.dietaryPreferences = user.getDietaryPreference().getPreferences().stream()
                     .map(Enum::name)
                     .toList();
         }
