@@ -14,16 +14,16 @@ public class Allergy {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long allergyKey;
+    private Long id;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_allergies", joinColumns = @JoinColumn(name = "allergyKey"))
+    @CollectionTable(name = "user_allergies", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "allergy_type")
     @Convert(converter = AllergyType.AllergyTypeConverter.class)
     private Set<AllergyType> allergies = new HashSet<>();
 
     @OneToOne
-    @JoinColumn(name = "userKey")
+    @JoinColumn(name = "user_id")
     private User user;
 
     public void setUser(User user) {
