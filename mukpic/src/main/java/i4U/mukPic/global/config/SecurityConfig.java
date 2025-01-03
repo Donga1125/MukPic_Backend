@@ -28,7 +28,7 @@ public class SecurityConfig {
                 .httpBasic(httpBasic -> httpBasic.disable()) // HTTP Basic 인증 비활성화
                 .authorizeHttpRequests(auth -> auth
                         // 회원가입, 로그인 API는 인증 없이 접근 가능
-                        .requestMatchers("/h2-console/**", "/api/users/register", "/api/auth/login", "/api/users/**", "/register/email", "/register/emailAuth").permitAll()
+                        .requestMatchers("/**", "/h2-console/**", "/api/users/register", "/api/auth/login", "/api/users/**", "/register/email", "/register/emailAuth", "/auth/**").permitAll()
                         // 그 외의 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
