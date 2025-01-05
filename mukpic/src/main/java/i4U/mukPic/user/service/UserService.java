@@ -104,9 +104,8 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public UserResponseDTO.DetailUserInfo getUserInfo(Long userKey) {
-        User user = checkUser(userKey);
-        return new UserResponseDTO.DetailUserInfo(user);
+    public User getUserInfo(Long userKey) {
+        return checkUser(userKey); // 기존 메서드 사용
     }
 
     private User checkUserStatus(UserRequestDTO.Register register) {
