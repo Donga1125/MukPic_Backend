@@ -1,5 +1,6 @@
 package i4U.mukPic.openai.service;
 
+import i4U.mukPic.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -11,6 +12,7 @@ import java.util.Map;
 public class ImageAnalysisService {
 
     private final WebClient webClient;
+    private final OpenAIService openAIService;
 
     // FastAPI 호출 메서드
     public Map<String, Object> callFastAPIServer(String imageUrl) {
@@ -37,9 +39,17 @@ public class ImageAnalysisService {
         }
     }
 
-    // 전체 로직 (호출 및 값 추출)
-    public String analyzeImage(String imageUrl) {
-        Map<String, Object> response = callFastAPIServer(imageUrl); // FastAPI 호출
-        return extractResult(response); // 응답 데이터에서 "result" 값 추출
+    // 이미지 분석 및 OpenAI 호출 전체 로직
+    public String analyzeImageWithUser(String imageUrl, User user) {
+        // 1. FastAPI 호출 및 결과 추출
+        Map<String, Object> fastAPIResponse = callFastAPIServer(imageUrl);
+        String result = extractResult(fastAPIResponse);
+
+        // 2. OpenAI API 호출 (FastAPI 결과와 사용자 정보 사용)
+        try {
+            return openAIService.generateFoodInfoWithUserDetails(result, user);
+        } catch (Exception e) {
+            throw new RuntimeException("OpenAI API 호출 실패: " + e.getMessage());
+        }
     }
 }

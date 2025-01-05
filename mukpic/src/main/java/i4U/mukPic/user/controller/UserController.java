@@ -1,8 +1,5 @@
 package i4U.mukPic.user.controller;
 
-import i4U.mukPic.global.auth.entity.Token;
-import i4U.mukPic.global.jwt.security.JwtTokenProvider;
-import i4U.mukPic.global.jwt.service.TokenService;
 import i4U.mukPic.user.dto.UserRequestDTO;
 import i4U.mukPic.user.dto.UserResponseDTO;
 import i4U.mukPic.user.entity.User;
@@ -22,8 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 public class UserController {
 
     private final UserService userService;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final TokenService tokenService;
 
     @PostMapping("/register")
     public ResponseEntity<UserResponseDTO.DetailUserInfo> register(@Valid @RequestBody UserRequestDTO.Register register) {
@@ -57,18 +52,7 @@ public class UserController {
     @PatchMapping("/deactivate")
     public ResponseEntity<String> deactivateUser(HttpServletRequest request) {
         try {
-            String accessToken = jwtTokenProvider.extractAccessToken(request)
-                    .orElseThrow(() -> new RuntimeException("Access Token이 없습니다."));
-
-            accessToken = refreshAccessTokenIfExpired(accessToken);
-
-            // 새 Access Token으로 사용자 ID 추출
-            String userId = jwtTokenProvider.extractSubject(accessToken)
-                    .orElseThrow(() -> new RuntimeException("토큰에서 사용자 ID 정보를 가져올 수 없습니다."));
-
-            // 회원 탈퇴 처리
-            userService.deactivateMember(userId);
-
+            userService.deactivateUser(request);
             return ResponseEntity.ok("회원 비활성화 성공");
         } catch (RuntimeException e) {
             log.error("Error during deactivation: {}", e.getMessage());
@@ -76,20 +60,4 @@ public class UserController {
         }
     }
 
-    private String refreshAccessTokenIfExpired(String accessToken) {
-        if (!jwtTokenProvider.validateToken(accessToken)) {
-            Token token = tokenService.findByAccessTokenOrThrow(accessToken);
-            log.info("Using Refresh Token for Access Token renewal");
-
-            if (jwtTokenProvider.validateToken(token.getRefreshToken())) {
-                String newAccessToken = jwtTokenProvider.generateAccessToken(
-                        jwtTokenProvider.getAuthentication(token.getRefreshToken()));
-                tokenService.updateToken(newAccessToken, token);
-                return newAccessToken;
-            } else {
-                throw new RuntimeException("Refresh Token도 만료되었습니다.");
-            }
-        }
-        return accessToken;
-    }
 }
