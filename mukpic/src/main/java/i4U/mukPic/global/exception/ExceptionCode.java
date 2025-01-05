@@ -34,7 +34,11 @@ public enum ExceptionCode {
     INVALID_DIETARY_PREFERENCE_TYPE(400, "잘못된 선호식단 타입입니다."),
     INVALID_CREDENTIALS(401, "아이디 또는 비밀번호가 올바르지 않습니다."),
     ALREADY_DEACTIVATED_USER(400, "이미 비활성화된 회원입니다."),
-    INVALID_TOKEN_ERROR(401, "유효하지 않은 토큰입니다.");
+    INVALID_TOKEN_ERROR(401, "유효하지 않은 토큰입니다."),
+
+    INVALID_REQUEST_BODY(400, "요청 본문이 잘못되었습니다."),
+    AI_SERVER_ERROR(500, "AI 서버 호출 중 오류가 발생했습니다."),
+    OPENAI_API_ERROR(500, "OpenAI API 호출 중 오류가 발생했습니다.");
 
     private final int status;
 

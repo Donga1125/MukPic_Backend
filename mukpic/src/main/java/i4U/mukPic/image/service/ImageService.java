@@ -188,4 +188,5 @@ public class ImageService {
     private String createFileName(Short type, String fileName) {
         return type + "/" + UUID.randomUUID().toString().concat(getFileExtension(fileName));
     }
+
 }

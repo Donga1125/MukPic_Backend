@@ -5,6 +5,7 @@ import i4U.mukPic.global.jwt.security.JwtTokenProvider;
 import i4U.mukPic.global.jwt.service.TokenService;
 import i4U.mukPic.user.dto.UserRequestDTO;
 import i4U.mukPic.user.dto.UserResponseDTO;
+import i4U.mukPic.user.entity.User;
 import i4U.mukPic.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -32,7 +33,8 @@ public class UserController {
 
     @GetMapping("/{userKey}")
     public ResponseEntity<UserResponseDTO.DetailUserInfo> getUserInfo(@PathVariable Long userKey) {
-        UserResponseDTO.DetailUserInfo detailUserInfo = userService.getUserInfo(userKey);
+        User user = userService.getUserInfo(userKey);
+        UserResponseDTO.DetailUserInfo detailUserInfo = new UserResponseDTO.DetailUserInfo(user);
         return ResponseEntity.ok(detailUserInfo);
     }
 

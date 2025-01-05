@@ -17,4 +17,5 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     Optional<Image> findByImageUrl (String imageUrl);
 
     Optional<Image> findByReferenceId (Short referenceId);
+
 }
