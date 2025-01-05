@@ -1,10 +1,8 @@
 package i4U.mukPic.openai.controller;
 
 import i4U.mukPic.openai.service.ImageAnalysisService;
-import i4U.mukPic.openai.service.OpenAIService;
 import i4U.mukPic.user.entity.User;
 import i4U.mukPic.user.service.UserService;
-import i4U.mukPic.global.jwt.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,9 +16,7 @@ import java.util.Map;
 public class ImageAnalysisController {
 
     private final ImageAnalysisService imageAnalysisService;
-    private final JwtTokenProvider jwtTokenProvider;
     private final UserService userService;
-    private final OpenAIService openAIService;
 
     @PostMapping("/analyze")
     public ResponseEntity<String> analyzeImage(
@@ -33,30 +29,18 @@ public class ImageAnalysisController {
             return ResponseEntity.badRequest().body("이미지 URL이 유효하지 않습니다.");
         }
 
-        // 2. FastAPI 호출하여 결과(result) 가져오기
+        // 2. UserService를 통해 사용자 정보 가져오기
+        User user = userService.getUserFromRequest(request);
+
+        // 3. ImageAnalysisService를 통해 비즈니스 로직 처리
         String result;
         try {
-            result = imageAnalysisService.analyzeImage(imageUrl);
+            result = imageAnalysisService.analyzeImageWithUser(imageUrl, user);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("FastAPI 호출 실패: " + e.getMessage());
+            return ResponseEntity.status(500).body(e.getMessage());
         }
 
-        // 3. JWT에서 userId 추출
-        String userId = jwtTokenProvider.extractUserIdFromRequest(request)
-                .orElseThrow(() -> new RuntimeException("JWT 토큰이 유효하지 않습니다."));
-
-        // 4. userId로 사용자 정보 조회
-        User user = userService.checkUserByUserId(userId);
-
-        // 5. OpenAI API 호출 (유저 정보와 result 전달)
-        String openAIResponse;
-        try {
-            openAIResponse = openAIService.generateFoodInfoWithUserDetails(result, user);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("OpenAI API 호출 실패: " + e.getMessage());
-        }
-
-        // 6. 최종 결과 반환
-        return ResponseEntity.ok(openAIResponse);
+        // 4. 최종 결과 반환
+        return ResponseEntity.ok(result);
     }
 }

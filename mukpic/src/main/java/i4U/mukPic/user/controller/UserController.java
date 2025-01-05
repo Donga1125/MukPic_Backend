@@ -52,7 +52,6 @@ public class UserController {
     @PatchMapping("/deactivate")
     public ResponseEntity<String> deactivateUser(HttpServletRequest request) {
         try {
-            // 서비스 계층에 요청 위임
             userService.deactivateUser(request);
             return ResponseEntity.ok("회원 비활성화 성공");
         } catch (RuntimeException e) {

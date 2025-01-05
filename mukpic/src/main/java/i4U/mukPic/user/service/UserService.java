@@ -291,7 +291,7 @@ public class UserService {
     @Transactional
     public void updatePassword(String email, String newPassword) {
         if (email == null || email.isEmpty()) {
-            throw new BusinessLogicException(ExceptionCode.INVALID_EMAIL_ERROR); // 새로운 예외 코드 정의
+            throw new BusinessLogicException(ExceptionCode.INVALID_EMAIL_ERROR);
         }
 
         User user = userRepository.findByEmail(email).orElseThrow(
@@ -322,6 +322,13 @@ public class UserService {
 
     @Transactional
     public void deactivateUser(HttpServletRequest request) {
+        User user = getUserFromRequest(request);
+
+        deactivateMember(user.getUserId());
+    }
+
+    @Transactional
+    public User getUserFromRequest(HttpServletRequest request) {
         // Access Token 추출
         String accessToken = jwtTokenProvider.extractAccessToken(request)
                 .orElseThrow(() -> new RuntimeException("Access Token이 없습니다."));
@@ -333,9 +340,10 @@ public class UserService {
         String userId = jwtTokenProvider.extractSubject(accessToken)
                 .orElseThrow(() -> new RuntimeException("토큰에서 사용자 ID 정보를 가져올 수 없습니다."));
 
-        // 회원 비활성화 처리
-        deactivateMember(userId);
+        // userId로 사용자 정보 조회
+        return checkUserByUserId(userId);
     }
+
 
     private String refreshAccessTokenIfExpired(String accessToken) {
         if (!jwtTokenProvider.validateToken(accessToken)) {
