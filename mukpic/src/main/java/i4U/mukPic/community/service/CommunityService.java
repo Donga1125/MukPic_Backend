@@ -72,8 +72,6 @@ public class CommunityService {
         };
     }
 
-    //게시글 전체 조회 (좋아요 순)
-
 
     //게시글 상세 조회
     public Community findCommunityById (Long communityKey){

@@ -18,7 +18,7 @@ public class CommunityResponseDto {
         this.communityKey = community.getCommunityKey();
         this.title = community.getTitle();
         this.content= community.getContent();
-        this.imageUrls = imageUrls;
+        this.imageUrls = community.getImages();
     }
 
 

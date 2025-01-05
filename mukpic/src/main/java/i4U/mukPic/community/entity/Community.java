@@ -3,6 +3,7 @@ package i4U.mukPic.community.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import i4U.mukPic.community.dto.CommunityRequestDto;
 import i4U.mukPic.global.config.Timestamped;
+import i4U.mukPic.image.entity.Image;
 import i4U.mukPic.likes.entity.CommunityLikes;
 import i4U.mukPic.user.entity.User;
 import jakarta.persistence.*;
@@ -42,6 +43,8 @@ public class Community extends Timestamped {
     @OneToMany(mappedBy = "community", cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
     private List<CommunityLikes> feedLikes  = new ArrayList<>();
 
+    @OneToMany(mappedBy = "referenceId", fetch = FetchType.LAZY)
+    private List<Image> images = new ArrayList<>();
 
     public void updateTitle (String title){
         this.title= title;
