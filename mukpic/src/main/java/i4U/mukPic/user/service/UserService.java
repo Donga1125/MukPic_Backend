@@ -1,20 +1,24 @@
 package i4U.mukPic.user.service;
 
+import i4U.mukPic.global.auth.entity.Token;
 import i4U.mukPic.global.exception.BusinessLogicException;
 import i4U.mukPic.global.exception.ExceptionCode;
 import i4U.mukPic.global.jwt.security.JwtTokenProvider;
+import i4U.mukPic.global.jwt.service.TokenService;
 import i4U.mukPic.user.dto.UserRequestDTO;
 import i4U.mukPic.user.dto.UserResponseDTO;
 import i4U.mukPic.user.entity.*;
 import i4U.mukPic.user.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -22,6 +26,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final TokenService tokenService;
 
     @Transactional
     public UserResponseDTO.DetailUserInfo createUser(UserRequestDTO.Register register) {
@@ -104,9 +109,8 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public UserResponseDTO.DetailUserInfo getUserInfo(Long userKey) {
-        User user = checkUser(userKey);
-        return new UserResponseDTO.DetailUserInfo(user);
+    public User getUserInfo(Long userKey) {
+        return checkUser(userKey); // 기존 메서드 사용
     }
 
     private User checkUserStatus(UserRequestDTO.Register register) {
@@ -287,7 +291,7 @@ public class UserService {
     @Transactional
     public void updatePassword(String email, String newPassword) {
         if (email == null || email.isEmpty()) {
-            throw new BusinessLogicException(ExceptionCode.INVALID_EMAIL_ERROR); // 새로운 예외 코드 정의
+            throw new BusinessLogicException(ExceptionCode.INVALID_EMAIL_ERROR);
         }
 
         User user = userRepository.findByEmail(email).orElseThrow(
@@ -315,5 +319,48 @@ public class UserService {
         return userRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
     }
+
+    @Transactional
+    public void deactivateUser(HttpServletRequest request) {
+        User user = getUserFromRequest(request);
+
+        deactivateMember(user.getUserId());
+    }
+
+    @Transactional
+    public User getUserFromRequest(HttpServletRequest request) {
+        // Access Token 추출
+        String accessToken = jwtTokenProvider.extractAccessToken(request)
+                .orElseThrow(() -> new RuntimeException("Access Token이 없습니다."));
+
+        // Access Token 갱신 처리
+        accessToken = refreshAccessTokenIfExpired(accessToken);
+
+        // 사용자 ID 추출
+        String userId = jwtTokenProvider.extractSubject(accessToken)
+                .orElseThrow(() -> new RuntimeException("토큰에서 사용자 ID 정보를 가져올 수 없습니다."));
+
+        // userId로 사용자 정보 조회
+        return checkUserByUserId(userId);
+    }
+
+
+    private String refreshAccessTokenIfExpired(String accessToken) {
+        if (!jwtTokenProvider.validateToken(accessToken)) {
+            Token token = tokenService.findByAccessTokenOrThrow(accessToken);
+            log.info("Using Refresh Token for Access Token renewal");
+
+            if (jwtTokenProvider.validateToken(token.getRefreshToken())) {
+                String newAccessToken = jwtTokenProvider.generateAccessToken(
+                        jwtTokenProvider.getAuthentication(token.getRefreshToken()));
+                tokenService.updateToken(newAccessToken, token);
+                return newAccessToken;
+            } else {
+                throw new RuntimeException("Refresh Token도 만료되었습니다.");
+            }
+        }
+        return accessToken;
+    }
+
 
 }

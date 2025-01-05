@@ -6,7 +6,6 @@ import i4U.mukPic.global.exception.BusinessLogicException;
 import i4U.mukPic.global.exception.ExceptionCode;
 import i4U.mukPic.likes.entity.CommunityLikes;
 import i4U.mukPic.likes.repository.LikeRepository;
-import i4U.mukPic.user.dto.UserResponseDTO;
 import i4U.mukPic.user.entity.User;
 import i4U.mukPic.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +25,7 @@ public class LikeService {
 
     //게시글 좋아요
     public void createFeedLike (Long userKey, Long communityKey) {
-        User user = userService.checkUser(userKey);
+        User user = userService.getUserInfo(userKey);
         Community community = communityService.checkFeed(communityKey);
         Optional<CommunityLikes> feedLikesOptional = likeRepository.findByUserAndCommunity(user, community);
 
@@ -46,7 +45,7 @@ public class LikeService {
 
     //게시글 좋아요 취소
     public void deleteFeedLike (Long userKey, Long communityKey){
-        User user = userService.checkUser(userKey);
+        User user = userService.getUserInfo(userKey);
         Community community = communityService.checkFeed(communityKey);
         CommunityLikes communityLikes = likeRepository.findByUserAndCommunity(user, community).orElseThrow(
                 () -> new BusinessLogicException(ExceptionCode.NOT_FOUND));

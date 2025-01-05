@@ -9,13 +9,13 @@ import java.util.List;
 public interface CommunityRepository extends JpaRepository<Community, Long> {
 
     //좋아요 순 내림차순, 동일 좋아요 수에서는 최신 순 정렬
-    List<Community> findAllByOrderByLikeCountDescCreateAtDesc();
+    List<Community> findAllByOrderByLikeCountDescCreatedAtDesc();
 
     //최신순으로 정렬
-    List<Community> findByCommunityOrderByCreateAtDesc();
+    List<Community> findByCommunityOrderByCreatedAtDesc();
 
     // 카테고리에 따른 게시글 조회
-    List<Community> findByCategory(String category, Sort sort);
+    List<Community> findBycommunityCategory(Short category, Sort sort);
 
 
 }

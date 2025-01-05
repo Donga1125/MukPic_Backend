@@ -25,7 +25,7 @@ public class CommunityController {
     @PostMapping
     public ResponseEntity postCommunityFeed (@Valid @RequestBody CommunityRequestDto.Post postDto){
         Community community = communityService.createCommunityFeed(postDto);
-        CommunityResponseDto responseDto = new CommunityResponseDto(community);
+        CommunityResponseDto responseDto = new CommunityResponseDto(community, community.getImages());
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
@@ -44,7 +44,7 @@ public class CommunityController {
     @GetMapping("{community-key}")
     public ResponseEntity getCommunityFeed (@PathVariable ("community-key") Long communityKey){
         Community community = communityService.findCommunityById(communityKey);
-        CommunityResponseDto communityResponseDto = new CommunityResponseDto(community);
+        CommunityResponseDto communityResponseDto = new CommunityResponseDto(community, community.getImages());
 
         return new ResponseEntity(communityResponseDto, HttpStatus.OK);
     }
@@ -54,7 +54,7 @@ public class CommunityController {
     @PatchMapping("{community-key}")
     public ResponseEntity patchCommunityFeed (@PathVariable ("community-key") Long communityKey, @RequestBody CommunityRequestDto.Patch patchDto){
         Community community = communityService.updateFeed(communityKey, patchDto);
-        CommunityResponseDto communityResponseDto = new CommunityResponseDto(community);
+        CommunityResponseDto communityResponseDto = new CommunityResponseDto(community, community.getImages());
 
         return new ResponseEntity<>(communityResponseDto, HttpStatus.OK);
     }

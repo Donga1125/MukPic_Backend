@@ -50,7 +50,7 @@ public class OpenAIService {
         List<Map<String, String>> messages = List.of(
                 Map.of("role", "system", "content", "You are a helpful assistant."),
                 Map.of("role", "user", "content", String.format(
-                        "Provide detailed information about the food '%s'. Use the following format:\n"
+                        "Reply only in English. Provide detailed information about the food '%s'. Use the following format:\n"
                                 + "Food Name: [value]\n"
                                 + "Food Description: [value]\n"
                                 + "Ingredients: [value]\n"
@@ -60,6 +60,7 @@ public class OpenAIService {
                         foodKeyword, userDetails
                 ))
         );
+
         requestBody.put("messages", messages);
         requestBody.put("max_tokens", 1000);
 
@@ -67,7 +68,6 @@ public class OpenAIService {
 
         try {
             // OpenAI API 호출
-            @SuppressWarnings("unchecked")
             ResponseEntity<Map<String, Object>> responseEntity = restTemplate.exchange(
                     apiUrl,
                     HttpMethod.POST,

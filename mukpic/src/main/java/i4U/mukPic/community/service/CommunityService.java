@@ -46,8 +46,7 @@ public class CommunityService {
             return communityRepository.findAll(sorting);
         } else {
             // 특정 카테고리의 게시글 반환
-            String categoryName = mapCategory(category);
-            return communityRepository.findByCategory(categoryName, sorting);
+            return communityRepository.findBycommunityCategory(category, sorting);
         }
     }
 
