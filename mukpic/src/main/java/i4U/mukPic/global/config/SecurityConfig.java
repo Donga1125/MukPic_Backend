@@ -57,7 +57,7 @@ public class SecurityConfig {
                         c.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용하지 않음
                 .authorizeHttpRequests(auth -> auth
                         // 회원가입, 로그인 API는 인증 없이 접근 가능
-                        .requestMatchers("/**", "/h2-console/**", "/api/users/register", "/api/auth/login", "/api/users/**", "/register/email", "/register/emailAuth", "/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**", "/h2-console/**", "/api/users/register", "/api/auth/login", "/api/users/**", "/register/email", "/register/emailAuth", "/auth/**").permitAll()
                         // 그 외의 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
@@ -86,7 +86,7 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("*", "http://localhost:3000","https://www.mukpic.site", "https://mukpic.site","https://api.mukpic.site")); // 허용할 도메인
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://www.mukpic.site", "https://mukpic.site", "https://api.mukpic.site")); // 허용할 도메인
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Access-Token", "X-Refresh-Token"));
         configuration.setAllowCredentials(true); // 인증 정보 허용
