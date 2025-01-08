@@ -5,7 +5,8 @@
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/mukpic" />
-        <option name="gradleJvm" value="openjdk-22" />
+        <option name="gradleHome" value="$PROJECT_DIR$/../../../../Gradle/gradle-8.7" />
+        <option name="gradleJvm" value="azul-17" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/mukpic" />

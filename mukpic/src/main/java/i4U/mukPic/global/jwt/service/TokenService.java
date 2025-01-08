@@ -22,6 +22,12 @@ public class TokenService {
     }
 
     @Transactional
+    public void deleteToken(Token token) {
+        tokenRepository.delete(token);
+        log.info("Deleted Token: {}", token.getAccessToken());
+    }
+
+    @Transactional
     public void saveOrUpdate(String memberKey, String refreshToken, String accessToken) {
         Token token = tokenRepository.findByAccessToken(accessToken)
                 .map(o -> o.updateRefreshToken(refreshToken))
@@ -46,4 +52,9 @@ public class TokenService {
         token.updateAccessToken(accessToken);
         tokenRepository.save(token);
     }
+
+    public boolean existsByAccessToken(String accessToken) {
+        return tokenRepository.existsByAccessToken(accessToken);
+    }
+
 }

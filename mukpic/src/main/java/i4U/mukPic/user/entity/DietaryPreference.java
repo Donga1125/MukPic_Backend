@@ -18,8 +18,8 @@ public class DietaryPreference {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_dietary_preferences", joinColumns = @JoinColumn(name = "preferenceKey"))
+    @Enumerated(EnumType.STRING)
     @Column(name = "preference_type")
-    @Convert(converter = DietaryPreferenceType.DietaryPreferenceTypeConverter.class)
     private Set<DietaryPreferenceType> preferences = new HashSet<>();
 
     @OneToOne

@@ -1,5 +1,6 @@
 package i4U.mukPic.user.service;
 
+import i4U.mukPic.global.auth.entity.Token;
 import i4U.mukPic.global.jwt.security.JwtTokenProvider;
 import i4U.mukPic.global.jwt.service.AuthenticationService;
 import i4U.mukPic.global.jwt.service.TokenService;
@@ -12,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,6 +51,20 @@ public class LoginService {
         tokens.put("accessToken", accessToken);
         tokens.put("refreshToken", refreshToken);
         return tokens;
+    }
+
+    @Transactional
+    public void logout(String accessToken) {
+        // Access Token 유효성 검증
+        if (!jwtTokenProvider.validateToken(accessToken)) {
+            throw new RuntimeException("유효하지 않은 Access Token입니다.");
+        }
+
+        // Access Token으로 저장된 Token 조회
+        Token token = tokenService.findByAccessTokenOrThrow(accessToken);
+
+        // 토큰 삭제
+        tokenService.deleteToken(token);
     }
 
 }

@@ -20,6 +20,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtTokenProvider jwtTokenProvider;
     private static final String BASE_URI = "http://localhost:8080";
+    /*private static final String BASE_URI = "https://api.mukpic.site:8080";*/
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,

@@ -10,4 +10,5 @@ import org.springframework.stereotype.Repository;
 public interface TokenRepository extends CrudRepository<Token, String> {
 
     Optional<Token> findByAccessToken(String accessToken);
+    boolean existsByAccessToken(String accessToken);
 }

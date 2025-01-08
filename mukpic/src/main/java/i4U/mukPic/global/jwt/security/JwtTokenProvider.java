@@ -126,9 +126,21 @@ public class JwtTokenProvider {
         try {
             Claims claims = parseClaims(token);
             log.info("Valid token. Claims: {}", claims);
+
+            // Access Token 삭제 여부 확인
+            if (!tokenService.existsByAccessToken(token)) {
+                log.warn("Access Token has been deleted or invalidated.");
+                return false;
+            }
+
             return true;
         } catch (ExpiredJwtException e) {
             log.warn("Token is expired: {}", e.getMessage());
+            // 만료된 토큰도 삭제 처리 가능
+            if (tokenService.existsByAccessToken(token)) {
+                tokenService.deleteToken(tokenService.findByAccessTokenOrThrow(token));
+                return false;
+            }
         } catch (JwtException e) {
             log.warn("Invalid token: {}", e.getMessage());
         }
