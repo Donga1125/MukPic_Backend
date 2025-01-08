@@ -38,4 +38,20 @@ public class LoginController {
                 .body(responseBody);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<Map<String, String>> logout(@RequestHeader("Authorization") String authorization) {
+        // Authorization 헤더에서 Bearer 제거
+        String accessToken = authorization.replace("Bearer ", "");
+
+        // 로그아웃 서비스 호출
+        loginService.logout(accessToken);
+
+        // 응답 본문 생성
+        Map<String, String> responseBody = new HashMap<>();
+        responseBody.put("status", "success");
+        responseBody.put("message", "Logout successful");
+
+        return ResponseEntity.ok(responseBody);
+    }
+
 }

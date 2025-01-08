@@ -20,7 +20,6 @@ public class FoodInfoController {
 
     private final OpenAIService openAIService;
     private final UserService userService;
-    private final JwtTokenProvider jwtTokenProvider;
 
     /**
      * 유저가 직접 키워드를 입력하여 음식 정보를 검색하는 API
@@ -36,12 +35,7 @@ public class FoodInfoController {
             throw new BusinessLogicException(ExceptionCode.INVALID_REQUEST_BODY);
         }
 
-        // 2. JWT에서 userId 추출
-        String userId = jwtTokenProvider.extractUserIdFromRequest(request)
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.INVALID_TOKEN_ERROR));
-
-        // 3. userId로 사용자 정보 조회
-        User user = userService.checkUserByUserId(userId);
+        User user = userService.getUserFromRequest(request);
 
         // 4. OpenAI API 호출 (유저 정보와 키워드 전달)
         String response;

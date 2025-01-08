@@ -36,16 +36,16 @@ public class User {
     @Column(nullable = false)
     private Boolean agree; // 약관 동의 여부
 
-    @Convert(converter = Role.RoleConverter.class)
+    @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Convert(converter = LoginType.LoginTypeConverter.class)
+    @Enumerated(EnumType.STRING)
     private LoginType loginType;
 
-    @Convert(converter = Religion.ReligionConverter.class)
+    @Enumerated(EnumType.STRING)
     private Religion religion;
 
-    @Convert(converter = UserStatus.UserStatusConverter.class)
+    @Enumerated(EnumType.STRING)
     private UserStatus userStatus; // 회원 탈퇴 여부
 
     private String nationality;

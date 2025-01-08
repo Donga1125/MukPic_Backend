@@ -14,6 +14,6 @@ public class WebClientConfig {
 
     @Bean
     public WebClient webClient(WebClient.Builder builder) {
-        return builder.baseUrl("http://host.docker.internal:8000").build();
+        return builder.baseUrl("http://127.0.0.1:8000").build();
     }
 }

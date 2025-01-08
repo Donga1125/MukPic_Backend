@@ -45,7 +45,7 @@ public class OpenAIService {
 
         // 요청 Body 생성
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("model", "gpt-4o-mini");
+        requestBody.put("model", "gpt-3.5-turbo");
 
         List<Map<String, String>> messages = List.of(
                 Map.of("role", "system", "content", "You are a helpful assistant."),
