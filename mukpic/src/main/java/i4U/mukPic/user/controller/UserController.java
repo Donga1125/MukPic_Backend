@@ -26,27 +26,25 @@ public class UserController {
         return ResponseEntity.ok(detailUserInfo);
     }
 
-    @GetMapping("/{userKey}")
-    public ResponseEntity<UserResponseDTO.DetailUserInfo> getUserInfo(@PathVariable Long userKey) {
-        User user = userService.getUserInfo(userKey);
+    @GetMapping("/myinfo")
+    public ResponseEntity<UserResponseDTO.DetailUserInfo> getUserInfo(HttpServletRequest request) {
+        User user = userService.getUserFromRequest(request);
         UserResponseDTO.DetailUserInfo detailUserInfo = new UserResponseDTO.DetailUserInfo(user);
         return ResponseEntity.ok(detailUserInfo);
     }
 
-    @PatchMapping("/editUserInfo/{userKey}")
-    public ResponseEntity<UserResponseDTO.DetailUserInfo> updateUser(
-            @PathVariable Long userKey,
-            @RequestBody @Valid UserRequestDTO.Patch patch) {
-
-        UserResponseDTO.DetailUserInfo updatedUser = userService.updateUser(userKey, patch);
+    @PatchMapping("/editUserInfo")
+    public ResponseEntity<UserResponseDTO.DetailUserInfo> updateUserInfo(
+            @RequestBody @Valid UserRequestDTO.Patch patch, HttpServletRequest request) {
+        UserResponseDTO.DetailUserInfo updatedUser = userService.updateUserFromRequest(patch, request);
         return ResponseEntity.ok(updatedUser);
     }
 
     @PatchMapping("/editPassword")
-    public ResponseEntity updatePasswordInfo(@Valid @RequestBody UserRequestDTO.UpdatePassword updatePassword) {
-        userService.updatePassword(updatePassword.getEmail(), updatePassword.getPassword());
-
-        return new ResponseEntity(HttpStatus.OK);
+    public ResponseEntity<String> updatePassword(
+            @Valid @RequestBody UserRequestDTO.UpdatePassword updatePassword, HttpServletRequest request) {
+        userService.updatePasswordFromRequest(updatePassword.getPassword(), request);
+        return ResponseEntity.ok("비밀번호 변경이 완료되었습니다.");
     }
 
     @PatchMapping("/deactivate")

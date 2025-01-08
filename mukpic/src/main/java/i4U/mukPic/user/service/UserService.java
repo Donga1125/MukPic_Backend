@@ -186,10 +186,11 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponseDTO.DetailUserInfo updateUser(Long userKey, UserRequestDTO.Patch patch) {
-        User user = userRepository.findById(userKey)
-                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
+    public UserResponseDTO.DetailUserInfo updateUserFromRequest(UserRequestDTO.Patch patch, HttpServletRequest request) {
+        // JWT에서 인증된 사용자 정보 가져오기
+        User user = getUserFromRequest(request);
 
+        // 유저 정보 수정
         if (patch.getUserName() != null && !patch.getUserName().equals(user.getUserName())) {
             checkUserName(patch.getUserName()); // 중복 검사
             user.updateUserName(patch.getUserName());
@@ -224,8 +225,10 @@ public class UserService {
 
         userRepository.save(user);
 
+        // 수정된 사용자 정보를 반환
         return new UserResponseDTO.DetailUserInfo(user);
     }
+
 
     // 알러지 생성/업데이트
     private Allergy createOrUpdateAllergy(User user, List<String> allergyTypes) {
@@ -289,16 +292,17 @@ public class UserService {
     }
 
     @Transactional
-    public void updatePassword(String email, String newPassword) {
-        if (email == null || email.isEmpty()) {
-            throw new BusinessLogicException(ExceptionCode.INVALID_EMAIL_ERROR);
+    public void updatePasswordFromRequest(String newPassword, HttpServletRequest request) {
+        User user = getUserFromRequest(request);
+
+        if (newPassword == null || newPassword.isEmpty()) {
+            throw new BusinessLogicException(ExceptionCode.INVALID_PASSWORD_ERROR);
         }
 
-        User user = userRepository.findByEmail(email).orElseThrow(
-                () -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
-
         user.updatePassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
+
 
     @Transactional
     public boolean deactivateMember(String userIdOrEmail) {
