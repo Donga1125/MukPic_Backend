@@ -14,12 +14,14 @@ public class CommunityResponseDto {
     private String title;
     private String content;
     private List<Image> imageUrls;
+    private int likeCount;
 
     public CommunityResponseDto(Community community, List<Image> imageUrls){
         this.communityKey = community.getCommunityKey();
         this.title = community.getTitle();
         this.content= community.getContent();
         this.imageUrls = imageUrls;
+        this.likeCount = community.getLikeCount();
     }
 
 

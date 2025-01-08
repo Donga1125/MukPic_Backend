@@ -21,18 +21,20 @@ public class Image extends Timestamped {
     @Column
     private String imageUrl;
 
-    private Short imageType;
+    @Enumerated(EnumType.STRING)
+    private ImageType imageType;
 
     @Column(nullable = true)
     private Long referenceId;
 
-    public void updateImage (Short imageType, Long referenceId){
+    public void updateImage (ImageType imageType, Long referenceId){
         this.imageType = imageType;
         this.referenceId = referenceId;
     }
 
+
     @Builder
-    public Image(String imageUrl, Short imageType, Long referenceId) {
+    public Image(String imageUrl, ImageType imageType, Long referenceId) {
         this.imageUrl = imageUrl;
         this.imageType = imageType;
         this.referenceId = referenceId;

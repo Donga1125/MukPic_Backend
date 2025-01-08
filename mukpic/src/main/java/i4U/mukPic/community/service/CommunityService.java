@@ -1,19 +1,26 @@
 package i4U.mukPic.community.service;
 
 import i4U.mukPic.community.dto.CommunityRequestDto;
+import i4U.mukPic.community.dto.CommunityResponseDto;
+import i4U.mukPic.community.entity.Category;
 import i4U.mukPic.community.entity.Community;
 import i4U.mukPic.community.repository.CommunityRepository;
 import i4U.mukPic.global.exception.BusinessLogicException;
 import i4U.mukPic.global.exception.ExceptionCode;
+import i4U.mukPic.image.entity.ImageType;
 import i4U.mukPic.image.service.ImageService;
 import i4U.mukPic.user.entity.User;
 import i4U.mukPic.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -26,50 +33,43 @@ public class CommunityService {
     private final ImageService imageService;
 
     //게시글 생성
-    public Community createCommunityFeed(CommunityRequestDto.Post postDto) {
-        User user = userRepository.findByUserKey(postDto.getUserKey()).orElseThrow(
-                () -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND)
-        );
+    public Community createCommunityFeed(CommunityRequestDto.Post postDto, User user) {
 
         Community community = Community.createFeed(postDto, user);
+        // 이미지 URL이 null일 경우 빈 리스트로 초기화
+        List<String> imageUrls = postDto.getImageUrl()!= null ? postDto.getImageUrl(): new ArrayList<>();
+
+        imageService.updateReferenceIdAndType(community.getCommunityKey(), ImageType.COMMUNITY, imageUrls);
 
         return communityRepository.save(community);
     }
 
-    //게시글 전체 조회
-    public List<Community> getCommunityPosts(Short category, Short sort) {
-        Sort sorting = createSorting(sort);
+    @Transactional(readOnly = true)
+    public Page<CommunityResponseDto> getAllCommunityFeeds(String sortBy, Pageable pageable) {
+        Page<Community> communities;
+        Sort sort = "likes".equalsIgnoreCase(sortBy)
+                ? Sort.by(Sort.Direction.DESC, "likeCount")
+                : Sort.by(Sort.Direction.DESC, "createdAt");
 
-        // 카테고리 필터링
-        if (category == 1) {
-            // 카테고리가 전체일 경우, 모든 게시글 반환
-            return communityRepository.findAll(sorting);
-        } else {
-            // 특정 카테고리의 게시글 반환
-            return communityRepository.findBycommunityCategory(category, sorting);
-        }
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+        communities = communityRepository.findAll(sortedPageable);
+
+        return communities.map(community -> new CommunityResponseDto(community, community.getImageUrl()));
     }
 
-    // 정렬 기준 설정
-    private Sort createSorting(Short sort) {
-        if (sort == 1) {
-            return Sort.by(Sort.Direction.DESC, "createdAt"); // 최신순
-        } else if (sort == 2) {
-            return Sort.by(Sort.Direction.DESC, "likes"); // 좋아요 순
-        } else {
-            throw new IllegalArgumentException("Invalid sort type: " + sort);
-        }
+    @Transactional(readOnly = true)
+    public Page<CommunityResponseDto> getCommunityFeedsByCategory(Category category, String sortBy, Pageable pageable) {
+        Page<Community> communities;
+        Sort sort = "likes".equalsIgnoreCase(sortBy)
+                ? Sort.by(Sort.Direction.DESC, "likeCount")
+                : Sort.by(Sort.Direction.DESC, "createdAt");
+
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+        communities = communityRepository.findByCategory(category, sortedPageable);
+
+        return communities.map(community -> new CommunityResponseDto(community, community.getImageUrl()));
     }
 
-    // 카테고리 매핑
-    private String mapCategory(Short category) {
-        return switch (category) {
-            case 2 -> "밥";
-            case 3 -> "면";
-            case 4 -> "빵";
-            default -> throw new IllegalArgumentException("Invalid category: " + category);
-        };
-    }
 
 
     //게시글 상세 조회
@@ -89,10 +89,10 @@ public class CommunityService {
             existingFeed.updateContent(patchDto.getContent());
         }
         if (patchDto.getImageUrl()!= null) {
-            imageService.updateReferenceIdAndType(existingFeed.getCommunityKey(), (short)2, patchDto.getImageUrl());
+            imageService.updateReferenceIdAndType(existingFeed.getCommunityKey(), ImageType.COMMUNITY, patchDto.getImageUrl());
         }
-        if (patchDto.getCommunityCategory() != null) {
-            existingFeed.updateCategory(patchDto.getCommunityCategory());
+        if (patchDto.getCategory() != null) {
+            existingFeed.updateCategory(Category.valueOf(patchDto.getCategory().toUpperCase()));
         }
 
         return existingFeed;
