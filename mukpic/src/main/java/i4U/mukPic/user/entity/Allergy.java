@@ -18,8 +18,8 @@ public class Allergy {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_allergies", joinColumns = @JoinColumn(name = "allergyKey"))
+    @Enumerated(EnumType.STRING)
     @Column(name = "allergy_type")
-    @Convert(converter = AllergyType.AllergyTypeConverter.class)
     private Set<AllergyType> allergies = new HashSet<>();
 
     @OneToOne
