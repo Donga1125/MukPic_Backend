@@ -9,6 +9,7 @@ import i4U.mukPic.global.jwt.filter.TokenExceptionFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -57,7 +58,8 @@ public class SecurityConfig {
                         c.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용하지 않음
                 .authorizeHttpRequests(auth -> auth
                         // 회원가입, 로그인 API는 인증 없이 접근 가능
-                        .requestMatchers("/**", "/h2-console/**", "/api/users/register", "/api/auth/login", "/api/users/**", "/register/email", "/register/emailAuth", "/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**" ).permitAll()
+                        .requestMatchers("notice/test", "/h2-console/**", "/register/email", "/register/emailAuth", "/auth/login","/users/register" ).permitAll()
                         // 그 외의 요청은 인증 필요
                         .anyRequest().authenticated()
                 )

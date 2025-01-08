@@ -18,7 +18,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Validated
 public class CommunityController {
-
     private final CommunityService communityService;
 
     //커뮤니티 글 등록

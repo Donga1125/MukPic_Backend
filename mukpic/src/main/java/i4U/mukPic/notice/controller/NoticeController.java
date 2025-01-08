@@ -25,6 +25,13 @@ public class NoticeController {
     private final UserService userService;
     private final NoticeService noticeService;
 
+    //상태체크를 위한 test 코드
+    @GetMapping("/test")
+    public String test (){
+        String str = "test";
+        return str;
+    }
+
     //공지사항 생성
     @PostMapping
     public ResponseEntity postNotice(@Valid @RequestBody NoticeRequestDto.Post postDto,
