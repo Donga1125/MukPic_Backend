@@ -13,6 +13,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+    defer-datasource-initialization: true
   h2:
     console:
       enabled: true
@@ -41,6 +42,11 @@ spring:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_SECRET}
             scope: profile, email
+
+  sql:
+    init:
+      data-locations:
+        - classpath:data.sql
 
 server:
   port: 8080

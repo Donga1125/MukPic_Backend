@@ -38,31 +38,22 @@ public class OpenAIService {
                 user.getDietaryPreference() != null ? user.getDietaryPreference().getPreferences() : "None"
         );
 
-        // HTTP Header 생성
+        // HTTP 요청 Body 생성
+        Map<String, Object> requestBody = Map.of(
+                "model", "gpt-3.5-turbo",
+                "messages", List.of(
+                        Map.of("role", "system", "content", "You are a helpful assistant."),
+                        Map.of("role", "user", "content", String.format(
+                                "Reply only in English. Provide allergy-related information and any additional advice for the following food '%s'.\n\n%s",
+                                foodKeyword, userDetails
+                        ))
+                ),
+                "max_tokens", 500
+        );
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", "Bearer " + apiKey);
-
-        // 요청 Body 생성
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("model", "gpt-3.5-turbo");
-
-        List<Map<String, String>> messages = List.of(
-                Map.of("role", "system", "content", "You are a helpful assistant."),
-                Map.of("role", "user", "content", String.format(
-                        "Reply only in English. Provide detailed information about the food '%s'. Use the following format:\n"
-                                + "Food Name: [value]\n"
-                                + "Food Description: [value]\n"
-                                + "Ingredients: [value]\n"
-                                + "Recipe: [value]\n"
-                                + "Allergy Information: [value]\n\n"
-                                + "Additionally, consider the following user details:\n%s",
-                        foodKeyword, userDetails
-                ))
-        );
-
-        requestBody.put("messages", messages);
-        requestBody.put("max_tokens", 1000);
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
 
