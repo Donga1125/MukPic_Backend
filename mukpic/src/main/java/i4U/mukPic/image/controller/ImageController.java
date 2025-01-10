@@ -1,5 +1,6 @@
 package i4U.mukPic.image.controller;
 
+import i4U.mukPic.image.entity.ImageType;
 import i4U.mukPic.image.service.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ public class ImageController {
 
     @PostMapping("/upload")
     public ResponseEntity<List<String>> uploadImages( @RequestParam(value = "file") List<MultipartFile> file,
-                                                      @RequestParam("type") Short type) {
+                                                      @RequestParam("type") ImageType imageType) {
         //todo: 예외 처리 클래스 생성 필요
         //imageFiles가 null인 경우 처리
         if (file == null) {
@@ -28,7 +29,7 @@ public class ImageController {
             throw new RuntimeException("최대 이미지 파일 수 제한 초과");
         }
 
-        List<String> imageUrls = imageService.uploadFile(file,type);
+        List<String> imageUrls = imageService.uploadFile(file,imageType);
         return ResponseEntity.ok(imageUrls);
     }
 

@@ -5,7 +5,10 @@ import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import i4U.mukPic.global.exception.BusinessLogicException;
+import i4U.mukPic.global.exception.ExceptionCode;
 import i4U.mukPic.image.entity.Image;
+import i4U.mukPic.image.entity.ImageType;
 import i4U.mukPic.image.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,11 +38,11 @@ public class ImageService {
 
 
     // 여러 개 파일 S3 업로드
-    public List<String> uploadFile(List<MultipartFile> multipartFile, Short type) {
+    public List<String> uploadFile(List<MultipartFile> multipartFile, ImageType imageType) {
         List<String> fileNameList = new ArrayList<>();
 
         multipartFile.forEach(file -> {
-            String fileName = createFileName(type, file.getOriginalFilename());
+            String fileName = createFileName(imageType, file.getOriginalFilename());
             ObjectMetadata objectMetadata = new ObjectMetadata();
             objectMetadata.setContentLength(file.getSize());
             objectMetadata.setContentType(file.getContentType());
@@ -71,7 +74,7 @@ public class ImageService {
      * @param imageType
      * @param imageUrls
      */
-    public void updateReferenceIdAndType (Short referenceId, Short imageType, List<String> imageUrls) {
+    public void updateReferenceIdAndType (Long referenceId, ImageType imageType, List<String> imageUrls) {
         // 해당 URL 목록을 사용하여 이미지 테이블의 레퍼런스 정보 업데이트
         for (String imageUrl : imageUrls) {
             Image image = imageRepository.findByImageUrl(imageUrl).orElseThrow(
@@ -89,8 +92,8 @@ public class ImageService {
      * @param imageType
      * @param imageUrl
      */
-    public void updateProfileImage(Short referenceId, Short imageType, String imageUrl) {
-        Optional<Image> originImage = imageRepository.findByImageTypeAndReferenceId(imageType,referenceId);
+    public void updateProfileImage(Long referenceId, ImageType imageType, String imageUrl) {
+        Optional<Image> originImage = imageRepository.findByImageTypeAndReferenceId( imageType, referenceId);
         originImage.ifPresentOrElse(
                 image -> {
                     // 해당 이미지가 이미 존재하는 경우
@@ -111,7 +114,7 @@ public class ImageService {
      * @param referenceId
      * @param imageType
      */
-    public List<String> getImagesByReferenceIdAndType(Short referenceId, Short imageType) {
+    public List<String> getImagesByReferenceIdAndType(Long referenceId, ImageType imageType) {
         return imageRepository.findByReferenceIdAndImageType(referenceId, imageType)
                 .stream()
                 .map(Image::getImageUrl)
@@ -122,7 +125,7 @@ public class ImageService {
     @Transactional
     public void deleteImage(String imageUrl) {
         Image image = imageRepository.findByImageUrl(imageUrl).orElseThrow(
-                () -> new RuntimeException("파일을 찾을 수 없음"));
+                () -> new BusinessLogicException(ExceptionCode.FILE_NOT_FOUND));
 
         try {
             imageRepository.delete(image);
@@ -131,7 +134,7 @@ public class ImageService {
 
         } catch (Exception e) {
             log.error("Failed to delete image with URL {}: {}", imageUrl, e.getMessage(), e);
-            throw new RuntimeException("파일을 삭제 오류");
+            throw new BusinessLogicException(ExceptionCode.FILE_DELETE_ERROR);
         }
     }
 
@@ -163,7 +166,7 @@ public class ImageService {
     }
 
 
-    private void updateImage (Short referenceId, Short imageType, String imageUrl){
+    private void updateImage (Long referenceId, ImageType imageType, String imageUrl){
         Image newImage = imageRepository.findByImageUrl(imageUrl).orElseThrow(
                 () -> new RuntimeException("파일을 찾을 수 없음"));
         newImage.updateImage(imageType,referenceId);
@@ -185,8 +188,8 @@ public class ImageService {
     }
 
     // 파일명 중복 방지 (UUID) 및 타입별 디렉토리 생성
-    private String createFileName(Short type, String fileName) {
-        return type + "/" + UUID.randomUUID().toString().concat(getFileExtension(fileName));
+    private String createFileName(ImageType imageType, String fileName) {
+        return imageType + "/" + UUID.randomUUID().toString().concat(getFileExtension(fileName));
     }
 
 }
