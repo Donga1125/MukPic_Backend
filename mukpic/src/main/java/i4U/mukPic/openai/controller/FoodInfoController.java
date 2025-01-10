@@ -3,6 +3,7 @@ package i4U.mukPic.openai.controller;
 import i4U.mukPic.global.exception.BusinessLogicException;
 import i4U.mukPic.global.exception.ExceptionCode;
 import i4U.mukPic.global.jwt.security.JwtTokenProvider;
+import i4U.mukPic.openai.service.ImageAnalysisService;
 import i4U.mukPic.openai.service.OpenAIService;
 import i4U.mukPic.user.entity.User;
 import i4U.mukPic.user.service.UserService;
@@ -18,14 +19,14 @@ import java.util.Map;
 @RequestMapping("/search")
 public class FoodInfoController {
 
-    private final OpenAIService openAIService;
+    private final ImageAnalysisService imageAnalysisService;
     private final UserService userService;
 
     /**
      * 유저가 직접 키워드를 입력하여 음식 정보를 검색하는 API
      */
     @PostMapping("/info")
-    public ResponseEntity<String> getFoodInfoByKeyword(
+    public ResponseEntity<Map<String, Object>> getFoodInfoByKeyword(
             @RequestBody Map<String, String> requestBody,
             HttpServletRequest request
     ) {
@@ -37,15 +38,10 @@ public class FoodInfoController {
 
         User user = userService.getUserFromRequest(request);
 
-        // 4. OpenAI API 호출 (유저 정보와 키워드 전달)
-        String response;
-        try {
-            response = openAIService.generateFoodInfoWithUserDetails(keyword, user);
-        } catch (Exception e) {
-            throw new BusinessLogicException(ExceptionCode.OPENAI_API_ERROR);
-        }
+        // 3. ImageAnalysisService 호출
+        Map<String, Object> response = imageAnalysisService.getFoodInfoWithKeyword(keyword, user);
 
-        // 5. 최종 결과 반환
+        // 4. 최종 결과 반환
         return ResponseEntity.ok(response);
     }
 }
