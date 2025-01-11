@@ -28,7 +28,7 @@ public class CommunityController {
     private final CommunityService communityService;
     private final UserService userService;
 
-    //커뮤니티 글 등록 
+    //커뮤니티 글 등록
     @PostMapping
     public ResponseEntity postCommunityFeed (@Valid @RequestBody CommunityRequestDto.Post postDto,
                                              HttpServletRequest request){
