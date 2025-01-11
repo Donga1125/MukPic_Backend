@@ -78,6 +78,13 @@ public class CommunityService {
         return community;
     }
 
+    //내가 쓴 게시글 목록 조회
+    public Page<CommunityResponseDto> findMyCommunityFeeds(Long userKey, Pageable pageable) {
+        return communityRepository.findAllByUser_UserKeyOrderByCreatedAtDesc(userKey, pageable)
+                .map(community -> new CommunityResponseDto(community, community.getImageUrl()));
+    }
+
+
     //게시글 수정
     public Community updateFeed(Long communityKey, CommunityRequestDto.Patch patchDto) {
         Community existingFeed = checkFeed(communityKey);

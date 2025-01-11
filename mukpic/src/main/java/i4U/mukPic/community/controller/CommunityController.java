@@ -56,6 +56,16 @@ public class CommunityController {
         return new ResponseEntity<>(responseDtos, HttpStatus.OK);
     }
 
+    //내가 쓴 게시글 조회
+    @GetMapping("/myCommunity")
+    public ResponseEntity getMyCommunityFeed (HttpServletRequest request, Pageable pageable) {
+
+        User user = userService.getUserFromRequest(request);
+        Page<CommunityResponseDto> myCommunities = communityService.findMyCommunityFeeds(user.getUserKey(), pageable);
+
+        return new ResponseEntity<>(myCommunities, HttpStatus.OK);
+
+    }
 
     //커뮤니티 글 상세 조회
     @GetMapping("{community-key}")
