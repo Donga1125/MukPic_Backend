@@ -18,5 +18,6 @@ public interface CommunityRepository extends JpaRepository<Community, Long> {
     // 사용자별 게시글 조회 (최신순)
     Page<Community> findAllByUser_UserKeyOrderByCreatedAtDesc(Long userKey, Pageable pageable);
 
-
+    // 사용자가 좋아요를 누른 게시글 조회 (최신순)
+    Page<Community> findByFeedLikes_User_UserKeyOrderByCreatedAtDesc(Long userKey, Pageable pageable);
 }
