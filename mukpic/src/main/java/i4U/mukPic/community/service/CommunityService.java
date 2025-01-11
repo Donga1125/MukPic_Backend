@@ -84,6 +84,11 @@ public class CommunityService {
                 .map(community -> new CommunityResponseDto(community, community.getImageUrl()));
     }
 
+    // 내가 좋아요를 누른 게시글 조회
+    public Page<CommunityResponseDto> findLikedCommunities(Long userKey, Pageable pageable) {
+        return communityRepository.findByFeedLikes_User_UserKeyOrderByCreatedAtDesc(userKey, pageable)
+                .map(community -> new CommunityResponseDto(community, community.getImageUrl()));
+    }
 
     //게시글 수정
     public Community updateFeed(Long communityKey, CommunityRequestDto.Patch patchDto) {

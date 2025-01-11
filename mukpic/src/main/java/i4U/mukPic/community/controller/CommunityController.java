@@ -57,7 +57,7 @@ public class CommunityController {
     }
 
     //내가 쓴 게시글 조회
-    @GetMapping("/myCommunity")
+    @GetMapping("/myCommunities")
     public ResponseEntity getMyCommunityFeed (HttpServletRequest request, Pageable pageable) {
 
         User user = userService.getUserFromRequest(request);
@@ -65,6 +65,15 @@ public class CommunityController {
 
         return new ResponseEntity<>(myCommunities, HttpStatus.OK);
 
+    }
+
+    //내가 좋아요 누른 게시글 조회
+    @GetMapping("/likedCommunities")
+    public ResponseEntity getLikedCommunities(HttpServletRequest request, Pageable pageable) {
+        User user = userService.getUserFromRequest(request);
+        Page<CommunityResponseDto> likedCommunities = communityService.findLikedCommunities(user.getUserKey(), pageable);
+
+        return new ResponseEntity<>(likedCommunities, HttpStatus.OK);
     }
 
     //커뮤니티 글 상세 조회
