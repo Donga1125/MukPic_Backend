@@ -76,5 +76,8 @@ jwt:
 
 
 openai:
-  api-url: https://api.openai.com/v1/chat/completions
+  api-url: ${OPENAI_API_URL}
   api-key: ${OPENAI_SECRET_KEY}
+
+ai:
+  base-url: ${AI_BASE_URL}
