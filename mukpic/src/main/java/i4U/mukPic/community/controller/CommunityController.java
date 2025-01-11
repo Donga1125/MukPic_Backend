@@ -3,7 +3,6 @@ package i4U.mukPic.community.controller;
 import i4U.mukPic.community.dto.CommunityRequestDto;
 import i4U.mukPic.community.dto.CommunityResponseDto;
 import i4U.mukPic.community.entity.Category;
-import i4U.mukPic.community.entity.Community;
 import i4U.mukPic.community.service.CommunityService;
 import i4U.mukPic.user.entity.User;
 import i4U.mukPic.user.service.UserService;
@@ -33,8 +32,7 @@ public class CommunityController {
     public ResponseEntity postCommunityFeed (@Valid @RequestBody CommunityRequestDto.Post postDto,
                                              HttpServletRequest request){
         User user = userService.getUserFromRequest(request);
-        Community community = communityService.createCommunityFeed(postDto, user);
-        CommunityResponseDto responseDto = new CommunityResponseDto(community, community.getImageUrl());
+        CommunityResponseDto responseDto = communityService.createCommunityFeed(postDto, user);
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
@@ -79,20 +77,18 @@ public class CommunityController {
     //커뮤니티 글 상세 조회
     @GetMapping("{community-key}")
     public ResponseEntity getCommunityFeed (@PathVariable ("community-key") Long communityKey){
-        Community community = communityService.findCommunityById(communityKey);
-        CommunityResponseDto communityResponseDto = new CommunityResponseDto(community, community.getImageUrl());
+        CommunityResponseDto responseDto = communityService.findCommunityById(communityKey);
 
-        return new ResponseEntity(communityResponseDto, HttpStatus.OK);
+        return new ResponseEntity(responseDto, HttpStatus.OK);
     }
 
 
     //커뮤니티 글 수정
     @PatchMapping("{community-key}")
     public ResponseEntity patchCommunityFeed (@PathVariable ("community-key") Long communityKey, @RequestBody CommunityRequestDto.Patch patchDto){
-        Community community = communityService.updateFeed(communityKey, patchDto);
-        CommunityResponseDto communityResponseDto = new CommunityResponseDto(community, community.getImageUrl());
+        CommunityResponseDto responseDto = communityService.updateFeed(communityKey, patchDto);
 
-        return new ResponseEntity<>(communityResponseDto, HttpStatus.OK);
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
     //커뮤니티 글 삭제
@@ -101,7 +97,6 @@ public class CommunityController {
         communityService.deleteCommunityFeed(communityKey);
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
-
 
 
 }

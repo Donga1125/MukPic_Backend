@@ -22,6 +22,7 @@ public class CommunityRequestDto {
 
         // 이미지 URL 리스트의 크기를 5개로 제한
         @Size(max = 5, message = "이미지는 최대 5개까지 업로드할 수 있습니다.")
+        @NotEmpty
         private List<String> imageUrl;
 
         @NotBlank

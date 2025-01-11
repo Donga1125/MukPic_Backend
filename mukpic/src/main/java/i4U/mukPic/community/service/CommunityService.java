@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -33,15 +34,15 @@ public class CommunityService {
     private final ImageService imageService;
 
     //게시글 생성
-    public Community createCommunityFeed(CommunityRequestDto.Post postDto, User user) {
+    public CommunityResponseDto createCommunityFeed(CommunityRequestDto.Post postDto, User user) {
 
         Community community = Community.createFeed(postDto, user);
+        communityRepository.save(community);
         // 이미지 URL이 null일 경우 빈 리스트로 초기화
         List<String> imageUrls = postDto.getImageUrl()!= null ? postDto.getImageUrl(): new ArrayList<>();
 
         imageService.updateReferenceIdAndType(community.getCommunityKey(), ImageType.COMMUNITY, imageUrls);
-
-        return communityRepository.save(community);
+        return createCommunityResponseDto(community);
     }
 
     @Transactional(readOnly = true)
@@ -54,7 +55,7 @@ public class CommunityService {
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
         communities = communityRepository.findAll(sortedPageable);
 
-        return communities.map(community -> new CommunityResponseDto(community, community.getImageUrl()));
+        return communities.map(community -> createCommunityResponseDto(community));
     }
 
     @Transactional(readOnly = true)
@@ -67,31 +68,31 @@ public class CommunityService {
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
         communities = communityRepository.findByCategory(category, sortedPageable);
 
-        return communities.map(community -> new CommunityResponseDto(community, community.getImageUrl()));
+        return communities.map(community -> createCommunityResponseDto(community));
     }
 
 
 
     //게시글 상세 조회
-    public Community findCommunityById (Long communityKey){
+    public CommunityResponseDto findCommunityById (Long communityKey){
         Community community = checkFeed(communityKey);
-        return community;
+        return createCommunityResponseDto(community);
     }
 
     //내가 쓴 게시글 목록 조회
     public Page<CommunityResponseDto> findMyCommunityFeeds(Long userKey, Pageable pageable) {
         return communityRepository.findAllByUser_UserKeyOrderByCreatedAtDesc(userKey, pageable)
-                .map(community -> new CommunityResponseDto(community, community.getImageUrl()));
+                .map(community -> createCommunityResponseDto(community));
     }
 
     // 내가 좋아요를 누른 게시글 조회
     public Page<CommunityResponseDto> findLikedCommunities(Long userKey, Pageable pageable) {
         return communityRepository.findByFeedLikes_User_UserKeyOrderByCreatedAtDesc(userKey, pageable)
-                .map(community -> new CommunityResponseDto(community, community.getImageUrl()));
+                .map(community -> createCommunityResponseDto(community));
     }
 
     //게시글 수정
-    public Community updateFeed(Long communityKey, CommunityRequestDto.Patch patchDto) {
+    public CommunityResponseDto updateFeed(Long communityKey, CommunityRequestDto.Patch patchDto) {
         Community existingFeed = checkFeed(communityKey);
 
         if (patchDto.getTitle() != null) {
@@ -107,7 +108,7 @@ public class CommunityService {
             existingFeed.updateCategory(Category.valueOf(patchDto.getCategory().toUpperCase()));
         }
 
-        return existingFeed;
+        return createCommunityResponseDto(existingFeed);
     }
 
     //게시글 삭제
@@ -123,6 +124,12 @@ public class CommunityService {
         Community community = communityRepository.findById(communityKey).orElseThrow(
                 () -> new BusinessLogicException(ExceptionCode.BOARD_NOT_FOUND));
         return community;
+    }
+
+    public CommunityResponseDto createCommunityResponseDto (Community community) {
+        List<String> imageUrls = imageService.getImagesByReferenceIdAndType(community.getCommunityKey(), ImageType.COMMUNITY);
+
+        return new CommunityResponseDto(community, imageUrls);
     }
 
 }
