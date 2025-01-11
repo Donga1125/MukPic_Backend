@@ -45,6 +45,7 @@ spring:
             scope: profile, email
   sql:
     init:
+      mode: always
       data-locations:
         - classpath:data.sql
 
