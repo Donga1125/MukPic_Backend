@@ -15,4 +15,8 @@ public interface CommunityRepository extends JpaRepository<Community, Long> {
     // 특정 카테고리에 해당하는 게시글을 조회하는 메서드
     Page<Community> findByCategory(Category category, Pageable pageable);
 
+    // 사용자별 게시글 조회 (최신순)
+    Page<Community> findAllByUser_UserKeyOrderByCreatedAtDesc(Long userKey, Pageable pageable);
+
+
 }

@@ -70,9 +70,10 @@ cloud:
 jwt:
   secret-key: ${JWT_SECRET_KEY}
   access:
-    expiration-time: 3600000 # 1 hour in milliseconds
+    expiration-time: 2592000000 # 30 days in milliseconds
   refresh:
-    expiration-time: 1209600000 #2주
+    expiration-time: 2592000000 # 30 days in milliseconds
+
 
 openai:
   api-url: https://api.openai.com/v1/chat/completions
