@@ -58,4 +58,22 @@ public class UserController {
         }
     }
 
+    @GetMapping("/checkUserId")
+    public ResponseEntity<Boolean> checkUserIdDuplicate(@RequestParam String userId) {
+        boolean isDuplicate = userService.isUserIdDuplicate(userId);
+        return ResponseEntity.ok(isDuplicate);
+    }
+
+    @GetMapping("/checkEmail")
+    public ResponseEntity<Boolean> checkEmailDuplicate(@RequestParam String email) {
+        boolean isDuplicate = userService.isEmailDuplicate(email);
+        return ResponseEntity.ok(isDuplicate);
+    }
+
+    @GetMapping("/checkUserName")
+    public ResponseEntity<Boolean> checkUserNameDuplicate(@RequestParam String userName) {
+        boolean isDuplicate = userService.isUserNameDuplicate(userName);
+        return ResponseEntity.ok(isDuplicate);
+    }
+
 }

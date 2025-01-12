@@ -5,6 +5,7 @@ import i4U.mukPic.global.exception.BusinessLogicException;
 import i4U.mukPic.global.exception.ExceptionCode;
 import i4U.mukPic.global.jwt.security.JwtTokenProvider;
 import i4U.mukPic.global.jwt.service.TokenService;
+import i4U.mukPic.image.service.ImageService;
 import i4U.mukPic.user.dto.UserRequestDTO;
 import i4U.mukPic.user.dto.UserResponseDTO;
 import i4U.mukPic.user.entity.*;
@@ -27,6 +28,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenService tokenService;
+    private final ImageService imageService;
 
     @Transactional
     public UserResponseDTO.DetailUserInfo createUser(UserRequestDTO.Register register) {
@@ -38,7 +40,9 @@ public class UserService {
             user.updatePassword(passwordEncoder.encode(register.getPassword()));
             user.updateUserName(register.getUserName());
             user.updateAgree(register.getAgree());
-            user.updateImage(register.getImage());
+            if (register.getImage() != null && !register.getImage().isEmpty()) {
+                user.updateImage(register.getImage());
+            }
         }
 
         Allergy allergy = user.getAllergy();
@@ -89,14 +93,19 @@ public class UserService {
         checkUserName(register.getUserName());
         checkEmail(register.getEmail());
 
-        String image = register.getImage() != null ? register.getImage() : "default-image.png";
+        String imageUrl;
+        if (register.getImage() != null && !register.getImage().isEmpty()) {
+            imageUrl = register.getImage();
+        } else {
+            imageUrl = imageService.getDefaultImageUrl();
+        }
 
         User user = User.builder()
                 .userId(register.getUserId())
                 .email(register.getEmail())
                 .password(register.getPassword())
                 .userName(register.getUserName())
-                .image(image)
+                .image(imageUrl)
                 .agree(register.getAgree())
                 .role(Role.USER)
                 .userStatus(UserStatus.ACTIVE)
@@ -225,7 +234,6 @@ public class UserService {
 
         userRepository.save(user);
 
-        // 수정된 사용자 정보를 반환
         return new UserResponseDTO.DetailUserInfo(user);
     }
 
@@ -281,14 +289,6 @@ public class UserService {
 
         dietaryPreference.setUser(user);
         return dietaryPreference;
-    }
-
-    //이메일로 회원 확인
-    public User checkUserByEmail (String email){
-
-        return userRepository.findByEmail(email).orElseThrow(
-                () -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
-
     }
 
     @Transactional
@@ -366,5 +366,19 @@ public class UserService {
         return accessToken;
     }
 
+    @Transactional(readOnly = true)
+    public boolean isUserIdDuplicate(String userId) {
+        return userRepository.existsByUserId(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isEmailDuplicate(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isUserNameDuplicate(String userName) {
+        return userRepository.existsByUserName(userName);
+    }
 
 }
