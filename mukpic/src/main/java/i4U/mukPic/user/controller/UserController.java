@@ -1,5 +1,8 @@
 package i4U.mukPic.user.controller;
 
+import i4U.mukPic.email.service.EmailSendService;
+import i4U.mukPic.global.exception.BusinessLogicException;
+import i4U.mukPic.global.exception.ExceptionCode;
 import i4U.mukPic.user.dto.UserRequestDTO;
 import i4U.mukPic.user.dto.UserResponseDTO;
 import i4U.mukPic.user.entity.User;
@@ -12,6 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Slf4j
 @RestController
 @RequestMapping("/users")
@@ -19,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UserController {
 
     private final UserService userService;
+    private final EmailSendService emailSendService;
 
     @PostMapping("/register")
     public ResponseEntity<UserResponseDTO.DetailUserInfo> register(@Valid @RequestBody UserRequestDTO.Register register) {
@@ -65,9 +72,35 @@ public class UserController {
     }
 
     @GetMapping("/checkEmail")
-    public ResponseEntity<Boolean> checkEmailDuplicate(@RequestParam String email) {
-        boolean isDuplicate = userService.isEmailDuplicate(email);
-        return ResponseEntity.ok(isDuplicate);
+    public ResponseEntity<Map<String, String>> checkEmailDuplicate(@RequestParam String email) {
+        Map<String, String> response = new HashMap<>();
+        try {
+            UserRequestDTO.Register register = new UserRequestDTO.Register();
+            register.setEmail(email);
+            User user = userService.checkUserStatus(register);
+
+            String code = null;
+
+            if (user == null) {
+                code = emailSendService.joinEmail(email);
+                response.put("message", "중복되지 않은 이메일입니다. 인증 메일을 발송했습니다.");
+            } else {
+                code = emailSendService.joinEmail(email);
+                response.put("message", "재가입 유저입니다. 계정을 활성화하고 인증 메일을 발송했습니다.");
+            }
+
+            response.put("code", code);
+            return ResponseEntity.ok(response);
+
+        } catch (BusinessLogicException ex) {
+            if (ExceptionCode.DUPLICATE_EMAIL_ERROR == ex.getExceptionCode()) {
+                response.put("message", "중복된 이메일입니다.");
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+            }
+
+            response.put("message", "알 수 없는 오류가 발생했습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 
     @GetMapping("/checkUserName")

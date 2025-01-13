@@ -49,7 +49,7 @@ public record OAuth2UserInfo(
                 .email(email)
                 .image(profile)
                 .role(Role.USER)
-                .loginType(LoginType.GOOGLE)
+                .loginType(LoginType.GUEST) //최초가입 guest
                 .userStatus(UserStatus.ACTIVE)
                 .agree(true)
                 .password(randomPassword) // 임의의 비밀번호 설정

@@ -39,7 +39,8 @@ public enum ExceptionCode {
     INVALID_REQUEST_BODY(400, "요청 본문이 잘못되었습니다."),
     AI_SERVER_ERROR(500, "AI 서버 호출 중 오류가 발생했습니다."),
     OPENAI_API_ERROR(500, "OpenAI API 호출 중 오류가 발생했습니다."),
-    INVALID_PASSWORD_ERROR(400, "비밀번호가 유효하지 않습니다.");
+    INVALID_PASSWORD_ERROR(400, "비밀번호가 유효하지 않습니다."),
+    UNKNOWN_USER_STATUS_ERROR(400, "알 수 없는 유저 상태입니다.");
 
     private final int status;
 
