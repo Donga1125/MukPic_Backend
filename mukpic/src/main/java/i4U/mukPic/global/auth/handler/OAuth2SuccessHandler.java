@@ -19,8 +19,8 @@ import java.io.IOException;
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private static final String BASE_URI = "http://localhost:3000";
-    /*private static final String BASE_URI = "https://api.mukpic.site";*/
+    /*private static final String BASE_URI = "http://localhost:8080";*/
+    private static final String BASE_URI = "https://api.mukpic.site";
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -36,16 +36,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             // 조건에 따라 다른 redirect URL 설정
             String redirectUrl;
             if (user.getUpdatedAt() == null || user.getUserStatus() == UserStatus.INACTIVE) {
-                redirectUrl = UriComponentsBuilder.fromUriString(BASE_URI)
-                        .queryParam("accessToken", accessToken)
-                        .build().toUriString();
+                redirectUrl = BASE_URI; // 기본 경로로 리다이렉션
             } else {
-                redirectUrl = UriComponentsBuilder.fromUriString(BASE_URI)
-                        .path("/signup/step3")
-                        .queryParam("accessToken", accessToken)
-                        .build().toUriString();
+                redirectUrl = BASE_URI + "/signup/step3"; // 회원가입 단계로 리다이렉션
             }
 
+            response.setHeader("Authorization", "Bearer " + accessToken);
 
             // 리다이렉트 처리
             response.sendRedirect(redirectUrl);

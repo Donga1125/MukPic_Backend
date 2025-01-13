@@ -45,7 +45,7 @@ public record OAuth2UserInfo(
         String randomPassword = UUID.randomUUID().toString().replace("-", "").substring(0, 10); // 10자리 비밀번호 생성
         return User.builder()
                 .userId(email)
-                .userName(name)
+                .userName(email) //name 닉네임이 겹치지 않게 email로 수정함
                 .email(email)
                 .image(profile)
                 .role(Role.USER)
