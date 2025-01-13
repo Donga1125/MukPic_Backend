@@ -59,7 +59,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 회원가입, 로그인 API는 인증 없이 접근 가능
                         .requestMatchers(HttpMethod.OPTIONS, "/**" ).permitAll()
-                        .requestMatchers("/images/upload", "notice/test", "/h2-console/**", "/register/email", "/register/emailAuth", "/auth/login","/users/register"
+                        .requestMatchers("/", "/index.html","/images/upload", "notice/test", "/h2-console/**", "/register/email", "/register/emailAuth", "/auth/login","/users/register"
                                             , "users/checkUserId", "users/checkEmail", "users/checkUserName").permitAll()
                         // 그 외의 요청은 인증 필요
                         .anyRequest().authenticated()
