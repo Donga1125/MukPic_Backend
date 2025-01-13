@@ -30,7 +30,6 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    private static final String DEFAULT_IMAGE = "default_img.jpg";
     private String image;
 
     @Column(nullable = false)
