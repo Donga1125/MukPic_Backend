@@ -85,6 +85,10 @@ public class User {
         this.userStatus = userStatus;
     }
 
+    public void updateLoginType(LoginType loginType) {
+        this.loginType = loginType;
+    }
+
     public void updatePassword(String password) {
         this.password = password;
     }

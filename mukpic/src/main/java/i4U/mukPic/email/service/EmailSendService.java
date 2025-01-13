@@ -22,7 +22,7 @@ public class EmailSendService {
     @Autowired
     private RedisConfig redisConfig;
 
-    private int authNumber;
+    private String authNumber;
 
     @Value("${spring.mail.username}")
     private String serviceName;
@@ -33,7 +33,7 @@ public class EmailSendService {
         for (int i = 0; i < 6; i++) {
             randomNumber.append(r.nextInt(10));
         }
-        authNumber = Integer.parseInt(randomNumber.toString());
+        authNumber = randomNumber.toString();
     }
 
     public void mailSend(String setFrom, String toMail, String title, String content) {
@@ -47,7 +47,7 @@ public class EmailSendService {
             javaMailSender.send(message);
 
             // Redis에 인증 코드 저장
-            redisConfig.redisTemplate().opsForValue().set(toMail, Integer.toString(authNumber), 3, TimeUnit.MINUTES);
+            redisConfig.redisTemplate().opsForValue().set(toMail, authNumber, 3, TimeUnit.MINUTES);
         } catch (MessagingException e) {
             e.printStackTrace();
         }
@@ -58,7 +58,7 @@ public class EmailSendService {
         String title = "회원 가입 인증 이메일입니다!";
         String content = "인증 번호는 " + authNumber + "입니다.";
         mailSend(serviceName, email, title, content);
-        return Integer.toString(authNumber);
+        return authNumber;
     }
 
     public Boolean checkAuthNum(String email, String authNum) {

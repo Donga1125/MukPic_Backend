@@ -2,7 +2,7 @@ package i4U.mukPic.global.auth.handler;
 
 import i4U.mukPic.global.auth.PrincipalDetails;
 import i4U.mukPic.global.jwt.security.JwtTokenProvider;
-import i4U.mukPic.user.entity.UserStatus;
+import i4U.mukPic.user.entity.LoginType;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 
@@ -25,25 +24,22 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
-        // accessToken, refreshToken 발급
+
         String accessToken = jwtTokenProvider.generateAccessToken(authentication);
         jwtTokenProvider.generateRefreshToken(authentication, accessToken);
 
-        // 사용자 정보 가져오기
         if (authentication.getPrincipal() instanceof PrincipalDetails principalDetails) {
             var user = principalDetails.user();
 
-            // 조건에 따라 다른 redirect URL 설정
             String redirectUrl;
-            if (user.getUpdatedAt() == null || user.getUserStatus() == UserStatus.INACTIVE) {
-                redirectUrl = BASE_URI + "/signup/step3"; // 회원가입 단계로 리다이렉션
+            if (user.getLoginType() == LoginType.GUEST) {
+                redirectUrl = BASE_URI + "/signup/step3";
             } else {
-                redirectUrl = BASE_URI; // 기본 경로로 리다이렉션
+                redirectUrl = BASE_URI;
             }
 
             response.setHeader("Authorization", "Bearer " + accessToken);
 
-            // 리다이렉트 처리
             response.sendRedirect(redirectUrl);
         } else {
             throw new IllegalArgumentException("Unexpected authentication principal type");

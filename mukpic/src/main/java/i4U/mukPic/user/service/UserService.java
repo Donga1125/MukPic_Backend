@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -36,7 +37,6 @@ public class UserService {
         if (user == null) {
             user = postUser(register);
         } else {
-            user.updateUserStatus(UserStatus.ACTIVE);
             user.updatePassword(passwordEncoder.encode(register.getPassword()));
             user.updateUserName(register.getUserName());
             user.updateAgree(register.getAgree());
@@ -122,11 +122,26 @@ public class UserService {
         return checkUser(userKey); // 기존 메서드 사용
     }
 
-    private User checkUserStatus(UserRequestDTO.Register register) {
-        return userRepository.findByEmail(register.getEmail())
-                .filter(user -> user.getUserStatus() == UserStatus.INACTIVE)
-                .orElse(null);
+    public User checkUserStatus(UserRequestDTO.Register register) {
+        Optional<User> optionalUser = userRepository.findByEmail(register.getEmail());
+
+        if (optionalUser.isEmpty()) {
+            return null;
+        }
+
+        User user = optionalUser.get();
+
+        if (user.getUserStatus() == UserStatus.INACTIVE) {
+            user.updateUserStatus(UserStatus.ACTIVE);
+            userRepository.save(user);
+            return user;
+        } else if (user.getUserStatus() == UserStatus.ACTIVE) {
+            throw new BusinessLogicException(ExceptionCode.DUPLICATE_EMAIL_ERROR);
+        }
+
+        throw new BusinessLogicException(ExceptionCode.UNKNOWN_USER_STATUS_ERROR);
     }
+
 
     private void checkUserName(String userName) {
         if (userRepository.findByUserName(userName).isPresent()) {
@@ -196,12 +211,10 @@ public class UserService {
 
     @Transactional
     public UserResponseDTO.DetailUserInfo updateUserFromRequest(UserRequestDTO.Patch patch, HttpServletRequest request) {
-        // JWT에서 인증된 사용자 정보 가져오기
         User user = getUserFromRequest(request);
 
-        // 유저 정보 수정
         if (patch.getUserName() != null && !patch.getUserName().equals(user.getUserName())) {
-            checkUserName(patch.getUserName()); // 중복 검사
+            checkUserName(patch.getUserName());
             user.updateUserName(patch.getUserName());
         }
 
@@ -230,6 +243,10 @@ public class UserService {
         if (patch.getDietaryPreferences() != null) {
             DietaryPreference updatedPreference = createOrUpdateDietaryPreference(user, patch.getDietaryPreferences());
             user.updateDietaryPreference(updatedPreference);
+        }
+
+        if (user.getLoginType() == LoginType.GUEST) {
+            user.updateLoginType(LoginType.GOOGLE);
         }
 
         userRepository.save(user);
@@ -314,6 +331,10 @@ public class UserService {
             throw new BusinessLogicException(ExceptionCode.ALREADY_DEACTIVATED_USER);
         }
 
+        if (user.getLoginType() == LoginType.GOOGLE) {
+            user.updateLoginType(LoginType.GUEST);
+        }
+
         user.updateUserStatus(UserStatus.INACTIVE);
         userRepository.save(user);
         return true;
@@ -369,11 +390,6 @@ public class UserService {
     @Transactional(readOnly = true)
     public boolean isUserIdDuplicate(String userId) {
         return userRepository.existsByUserId(userId);
-    }
-
-    @Transactional(readOnly = true)
-    public boolean isEmailDuplicate(String email) {
-        return userRepository.existsByEmail(email);
     }
 
     @Transactional(readOnly = true)
