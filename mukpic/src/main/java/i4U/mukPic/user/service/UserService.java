@@ -390,30 +390,41 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User isUserIdDuplicate(String userId) {
-        Optional<User> optionalUser = userRepository.findByUserId(userId);
-        if (optionalUser.isEmpty()) {
-            return null;
+    public boolean isUserIdDuplicate(String userId, String email) {
+        try {
+            UserRequestDTO.Register register = new UserRequestDTO.Register();
+            register.setEmail(email);
+            User user = checkUserStatus(register);
+
+            if (user != null && user.getUserStatus() == UserStatus.INACTIVE) {
+                return false;
+            }
+        } catch (BusinessLogicException e) {
+            if (e.getExceptionCode() != ExceptionCode.DUPLICATE_EMAIL_ERROR) {
+                throw e;
+            }
         }
-        User user = optionalUser.get();
-        if (user.getUserStatus() == UserStatus.INACTIVE) {
-            return null;
-        }
-        throw new BusinessLogicException(ExceptionCode.DUPLICATE_USERID_ERROR);
+
+        return userRepository.existsByUserId(userId);
     }
 
-
     @Transactional(readOnly = true)
-    public User isUserNameDuplicate(String userName) {
-        Optional<User> optionalUser = userRepository.findByUserName(userName);
-        if (optionalUser.isEmpty()) {
-            return null;
+    public boolean isUserNameDuplicate(String userName, String email) {
+        try {
+            UserRequestDTO.Register register = new UserRequestDTO.Register();
+            register.setEmail(email);
+            User user = checkUserStatus(register);
+
+            if (user != null && user.getUserStatus() == UserStatus.INACTIVE) {
+                return false;
+            }
+        } catch (BusinessLogicException e) {
+            if (e.getExceptionCode() != ExceptionCode.DUPLICATE_EMAIL_ERROR) {
+                throw e;
+            }
         }
-        User user = optionalUser.get();
-        if (user.getUserStatus() == UserStatus.INACTIVE) {
-            return null;
-        }
-        throw new BusinessLogicException(ExceptionCode.DUPLICATE_USERNAME_ERROR);
+
+        return userRepository.existsByUserName(userName);
     }
 
     public Map<String, Object> handleEmailDuplicationCheck(String email) {
