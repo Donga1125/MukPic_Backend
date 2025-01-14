@@ -80,7 +80,7 @@ public class UserController {
 
     @GetMapping("/checkUserName")
     public ResponseEntity<Boolean> checkUserNameDuplicate(@RequestParam String userName) {
-        userService.isUserIdDuplicate(userName);
+        userService.isUserNameDuplicate(userName);
         return ResponseEntity.ok(false);
     }
 

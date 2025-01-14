@@ -102,6 +102,7 @@ public class UserService {
     private User postUser(UserRequestDTO.Register register) {
         checkUserName(register.getUserName());
         checkEmail(register.getEmail());
+        checkUserId(register.getUserId());
 
         String imageUrl;
         if (register.getImage() != null && !register.getImage().isEmpty()) {
@@ -155,6 +156,12 @@ public class UserService {
     private void checkEmail(String email) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new BusinessLogicException(ExceptionCode.DUPLICATE_EMAIL_ERROR);
+        }
+    }
+
+    private void checkUserId(String userId) {
+        if (userRepository.findByUserId(userId).isPresent()) {
+            throw new BusinessLogicException(ExceptionCode.DUPLICATE_USERID_ERROR);
         }
     }
 
