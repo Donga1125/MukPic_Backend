@@ -46,6 +46,10 @@ public class UserService {
             user.updatePassword(passwordEncoder.encode(register.getPassword()));
             user.updateUserName(register.getUserName());
             user.updateAgree(register.getAgree());
+            user.updateReligion(register.getReligion());
+            user.updateNationality(register.getNationality());
+            user.updateEmail(register.getEmail());
+            user.updateUserId(register.getUserId());
             if (register.getImage() != null && !register.getImage().isEmpty()) {
                 user.updateImage(register.getImage());
             }
@@ -125,7 +129,7 @@ public class UserService {
     }
 
     public User getUserInfo(Long userKey) {
-        return checkUser(userKey); // 기존 메서드 사용
+        return checkUser(userKey);
     }
 
     public User checkUserStatus(UserRequestDTO.Register register) {
@@ -379,13 +383,30 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public boolean isUserIdDuplicate(String userId) {
-        return userRepository.existsByUserId(userId);
+    public User isUserIdDuplicate(String userId) {
+        Optional<User> optionalUser = userRepository.findByUserId(userId);
+        if (optionalUser.isEmpty()) {
+            return null;
+        }
+        User user = optionalUser.get();
+        if (user.getUserStatus() == UserStatus.INACTIVE) {
+            return null;
+        }
+        throw new BusinessLogicException(ExceptionCode.DUPLICATE_USERID_ERROR);
     }
 
+
     @Transactional(readOnly = true)
-    public boolean isUserNameDuplicate(String userName) {
-        return userRepository.existsByUserName(userName);
+    public User isUserNameDuplicate(String userName) {
+        Optional<User> optionalUser = userRepository.findByUserName(userName);
+        if (optionalUser.isEmpty()) {
+            return null;
+        }
+        User user = optionalUser.get();
+        if (user.getUserStatus() == UserStatus.INACTIVE) {
+            return null;
+        }
+        throw new BusinessLogicException(ExceptionCode.DUPLICATE_USERNAME_ERROR);
     }
 
     public Map<String, Object> handleEmailDuplicationCheck(String email) {

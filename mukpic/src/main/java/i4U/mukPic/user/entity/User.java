@@ -113,6 +113,14 @@ public class User {
         this.religion = religion;
     }
 
+    public void updateEmail(String email) {
+        this.email = email;
+    }
+
+    public void updateUserId(String userId) {
+        this.userId = userId;
+    }
+
     public void updateRole(Role role) {
         this.role = role;
     }

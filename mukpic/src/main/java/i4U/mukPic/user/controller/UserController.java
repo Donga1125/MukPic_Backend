@@ -66,8 +66,8 @@ public class UserController {
 
     @GetMapping("/checkUserId")
     public ResponseEntity<Boolean> checkUserIdDuplicate(@RequestParam String userId) {
-        boolean isDuplicate = userService.isUserIdDuplicate(userId);
-        return ResponseEntity.ok(isDuplicate);
+        userService.isUserIdDuplicate(userId);
+        return ResponseEntity.ok(false); // 중복되지 않은 경우
     }
 
     @GetMapping("/checkEmail")
@@ -80,8 +80,8 @@ public class UserController {
 
     @GetMapping("/checkUserName")
     public ResponseEntity<Boolean> checkUserNameDuplicate(@RequestParam String userName) {
-        boolean isDuplicate = userService.isUserNameDuplicate(userName);
-        return ResponseEntity.ok(isDuplicate);
+        userService.isUserIdDuplicate(userName);
+        return ResponseEntity.ok(false);
     }
 
 }
