@@ -250,6 +250,7 @@ public class UserService {
         }
         if (user.getLoginType() == LoginType.GUEST) {
             user.updateLoginType(LoginType.GOOGLE);
+            user.updateUserStatus(UserStatus.ACTIVE);
         }
         userRepository.save(user);
 

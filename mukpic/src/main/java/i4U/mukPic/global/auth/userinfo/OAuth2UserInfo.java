@@ -50,7 +50,7 @@ public record OAuth2UserInfo(
                 .image(profile)
                 .role(Role.USER)
                 .loginType(LoginType.GUEST) //최초가입 guest
-                .userStatus(UserStatus.ACTIVE)
+                .userStatus(UserStatus.INACTIVE)
                 .agree(true)
                 .password(randomPassword) // 임의의 비밀번호 설정
                 .build();
