@@ -13,7 +13,6 @@ import java.util.List;
 
 public class UserRequestDTO {
 
-    @Setter
     @Getter
     @NoArgsConstructor
     public static class Register {
@@ -47,12 +46,64 @@ public class UserRequestDTO {
         @NotNull
         private Boolean agree;
 
-        private List<String> allergyTypes; // 알러지 타입 리스트
-
-        private List<String> chronicDiseaseTypes; // 만성 질환 타입 리스트
-
+        private List<String> allergyTypes;
+        private List<String> chronicDiseaseTypes;
         private List<String> dietaryPreferences;
 
+        public void setUserId(String userId) {
+            if (userId == null || userId.length() < 4) {
+                throw new IllegalArgumentException("아이디는 4자 이상이어야 합니다.");
+            }
+            this.userId = userId;
+        }
+
+        public void setEmail(String email) {
+            if (email == null || !email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+                throw new IllegalArgumentException("유효하지 않은 이메일 형식입니다.");
+            }
+            this.email = email;
+        }
+
+        public void setPassword(String password) {
+            if (password == null || password.length() < 8) {
+                throw new IllegalArgumentException("비밀번호는 8자 이상이어야 합니다.");
+            }
+            this.password = password;
+        }
+
+        public void setUserName(String userName) {
+            if (userName == null || userName.isBlank()) {
+                throw new IllegalArgumentException("유저 이름은 필수입니다.");
+            }
+            this.userName = userName;
+        }
+
+        public void setNationality(String nationality) {
+            this.nationality = nationality;
+        }
+
+        public void setReligion(Religion religion) {
+            this.religion = religion != null ? religion : Religion.NONE;
+        }
+
+        public void setAgree(Boolean agree) {
+            if (agree == null) {
+                throw new IllegalArgumentException("약관 동의 여부를 반드시 입력해야 합니다.");
+            }
+            this.agree = agree;
+        }
+
+        public void setAllergyTypes(List<String> allergyTypes) {
+            this.allergyTypes = allergyTypes;
+        }
+
+        public void setChronicDiseaseTypes(List<String> chronicDiseaseTypes) {
+            this.chronicDiseaseTypes = chronicDiseaseTypes;
+        }
+
+        public void setDietaryPreferences(List<String> dietaryPreferences) {
+            this.dietaryPreferences = dietaryPreferences;
+        }
     }
 
     @Getter

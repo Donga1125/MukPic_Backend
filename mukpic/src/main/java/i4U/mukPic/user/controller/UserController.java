@@ -25,7 +25,6 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
-    private final EmailSendService emailSendService;
 
     @PostMapping("/register")
     public ResponseEntity<UserResponseDTO.DetailUserInfo> register(@Valid @RequestBody UserRequestDTO.Register register) {
@@ -67,46 +66,22 @@ public class UserController {
 
     @GetMapping("/checkUserId")
     public ResponseEntity<Boolean> checkUserIdDuplicate(@RequestParam String userId) {
-        boolean isDuplicate = userService.isUserIdDuplicate(userId);
-        return ResponseEntity.ok(isDuplicate);
+        userService.isUserIdDuplicate(userId);
+        return ResponseEntity.ok(false); // 중복되지 않은 경우
     }
 
     @GetMapping("/checkEmail")
-    public ResponseEntity<Map<String, String>> checkEmailDuplicate(@RequestParam String email) {
-        Map<String, String> response = new HashMap<>();
-        try {
-            UserRequestDTO.Register register = new UserRequestDTO.Register();
-            register.setEmail(email);
-            User user = userService.checkUserStatus(register);
-
-            String code = null;
-
-            if (user == null) {
-                code = emailSendService.joinEmail(email);
-                response.put("message", "중복되지 않은 이메일입니다. 인증 메일을 발송했습니다.");
-            } else {
-                code = emailSendService.joinEmail(email);
-                response.put("message", "재가입 유저입니다. 계정을 활성화하고 인증 메일을 발송했습니다.");
-            }
-
-            response.put("code", code);
-            return ResponseEntity.ok(response);
-
-        } catch (BusinessLogicException ex) {
-            if (ExceptionCode.DUPLICATE_EMAIL_ERROR == ex.getExceptionCode()) {
-                response.put("message", "중복된 이메일입니다.");
-                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-            }
-
-            response.put("message", "알 수 없는 오류가 발생했습니다.");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
+    public ResponseEntity<Map<String, Object>> checkEmailDuplicate(@RequestParam String email) {
+        Map<String, Object> response = userService.handleEmailDuplicationCheck(email);
+        HttpStatus status = (HttpStatus) response.get("status");
+        response.remove("status");
+        return ResponseEntity.status(status).body(response);
     }
 
     @GetMapping("/checkUserName")
     public ResponseEntity<Boolean> checkUserNameDuplicate(@RequestParam String userName) {
-        boolean isDuplicate = userService.isUserNameDuplicate(userName);
-        return ResponseEntity.ok(isDuplicate);
+        userService.isUserNameDuplicate(userName);
+        return ResponseEntity.ok(false);
     }
 
 }

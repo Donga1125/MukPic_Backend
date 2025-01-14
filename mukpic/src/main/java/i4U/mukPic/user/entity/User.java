@@ -18,7 +18,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userKey;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String userId;
 
     @Column(nullable = false)
@@ -111,6 +111,14 @@ public class User {
 
     public void updateReligion(Religion religion) {
         this.religion = religion;
+    }
+
+    public void updateEmail(String email) {
+        this.email = email;
+    }
+
+    public void updateUserId(String userId) {
+        this.userId = userId;
     }
 
     public void updateRole(Role role) {

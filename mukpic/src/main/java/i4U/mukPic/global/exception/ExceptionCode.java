@@ -15,6 +15,7 @@ public enum ExceptionCode {
     USER_NOT_ACTIVE(403, "탈퇴한 회원입니다."),
     DUPLICATE_EMAIL_ERROR (409, "이메일 중복"),
     DUPLICATE_USERNAME_ERROR (409, "닉네임 중복"),
+    DUPLICATE_USERID_ERROR (409, "아이디 중복"),
     DUPLICATE_ERROR (409, "중복된 요청"),
 
     FILE_UPLOAD_ERROR(413, "파일 업로드 실패"),
