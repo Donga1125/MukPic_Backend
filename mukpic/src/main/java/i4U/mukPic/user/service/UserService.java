@@ -1,5 +1,6 @@
 package i4U.mukPic.user.service;
 
+import i4U.mukPic.email.service.EmailSendService;
 import i4U.mukPic.global.auth.entity.Token;
 import i4U.mukPic.global.exception.BusinessLogicException;
 import i4U.mukPic.global.exception.ExceptionCode;
@@ -12,12 +13,15 @@ import i4U.mukPic.user.entity.*;
 import i4U.mukPic.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -30,6 +34,7 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenService tokenService;
     private final ImageService imageService;
+    private final EmailSendService emailSendService;
 
     @Transactional
     public UserResponseDTO.DetailUserInfo createUser(UserRequestDTO.Register register) {
@@ -37,6 +42,7 @@ public class UserService {
         if (user == null) {
             user = postUser(register);
         } else {
+            user.updateUserStatus(UserStatus.ACTIVE);
             user.updatePassword(passwordEncoder.encode(register.getPassword()));
             user.updateUserName(register.getUserName());
             user.updateAgree(register.getAgree());
@@ -124,24 +130,17 @@ public class UserService {
 
     public User checkUserStatus(UserRequestDTO.Register register) {
         Optional<User> optionalUser = userRepository.findByEmail(register.getEmail());
-
         if (optionalUser.isEmpty()) {
             return null;
         }
-
         User user = optionalUser.get();
-
         if (user.getUserStatus() == UserStatus.INACTIVE) {
-            user.updateUserStatus(UserStatus.ACTIVE);
-            userRepository.save(user);
             return user;
         } else if (user.getUserStatus() == UserStatus.ACTIVE) {
             throw new BusinessLogicException(ExceptionCode.DUPLICATE_EMAIL_ERROR);
         }
-
         throw new BusinessLogicException(ExceptionCode.UNKNOWN_USER_STATUS_ERROR);
     }
-
 
     private void checkUserName(String userName) {
         if (userRepository.findByUserName(userName).isPresent()) {
@@ -217,38 +216,30 @@ public class UserService {
             checkUserName(patch.getUserName());
             user.updateUserName(patch.getUserName());
         }
-
         if (patch.getImage() != null) {
             user.updateImage(patch.getImage());
         }
-
         if (patch.getNationality() != null) {
             user.updateNationality(patch.getNationality());
         }
-
         if (patch.getReligion() != null) {
             user.updateReligion(patch.getReligion());
         }
-
         if (patch.getAllergyTypes() != null) {
             Allergy updatedAllergy = createOrUpdateAllergy(user, patch.getAllergyTypes());
             user.updateAllergy(updatedAllergy);
         }
-
         if (patch.getChronicDiseases() != null) {
             ChronicDisease updatedChronicDisease = createOrUpdateChronicDisease(user, patch.getChronicDiseases());
             user.updateChronicDisease(updatedChronicDisease);
         }
-
         if (patch.getDietaryPreferences() != null) {
             DietaryPreference updatedPreference = createOrUpdateDietaryPreference(user, patch.getDietaryPreferences());
             user.updateDietaryPreference(updatedPreference);
         }
-
         if (user.getLoginType() == LoginType.GUEST) {
             user.updateLoginType(LoginType.GOOGLE);
         }
-
         userRepository.save(user);
 
         return new UserResponseDTO.DetailUserInfo(user);
@@ -395,6 +386,34 @@ public class UserService {
     @Transactional(readOnly = true)
     public boolean isUserNameDuplicate(String userName) {
         return userRepository.existsByUserName(userName);
+    }
+
+    public Map<String, Object> handleEmailDuplicationCheck(String email) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            UserRequestDTO.Register register = new UserRequestDTO.Register();
+            register.setEmail(email);
+            User user = checkUserStatus(register);
+            if (user != null && user.getUserStatus() == UserStatus.INACTIVE) {
+                String authCode = emailSendService.joinEmail(email);
+                response.put("message", "재가입 유저입니다. 인증 메일을 발송했습니다.");
+                response.put("authCode", authCode);
+                response.put("status", HttpStatus.CONFLICT);
+                return response;
+            }
+        } catch (BusinessLogicException e) {
+            if (e.getExceptionCode() == ExceptionCode.DUPLICATE_EMAIL_ERROR) {
+                response.put("message", "중복된 이메일입니다.");
+                response.put("status", HttpStatus.CONFLICT);
+                return response;
+            }
+            throw e;
+        }
+        String authCode = emailSendService.joinEmail(email);
+        response.put("message", "중복되지 않은 이메일입니다. 인증 메일을 발송했습니다.");
+        response.put("authCode", authCode);
+        response.put("status", HttpStatus.OK);
+        return response;
     }
 
 }
