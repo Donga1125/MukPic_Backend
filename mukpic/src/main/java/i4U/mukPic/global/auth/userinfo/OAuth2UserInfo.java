@@ -1,5 +1,6 @@
 package i4U.mukPic.global.auth.userinfo;
 
+import i4U.mukPic.image.service.ImageService;
 import i4U.mukPic.user.entity.Allergy;
 import i4U.mukPic.user.entity.ChronicDisease;
 import i4U.mukPic.user.entity.DietaryPreference;
@@ -37,17 +38,19 @@ public record OAuth2UserInfo(
                 .build();
     }
 
-    public User toEntity() {
+    public User toEntity(ImageService imageService) {
         Allergy defaultAllergy = new Allergy();
         ChronicDisease defaultChronicDisease = new ChronicDisease();
         DietaryPreference defaultDietaryPreference = new DietaryPreference();
+
+        String imageUrl = imageService.getDefaultImageUrl();
 
         String randomPassword = UUID.randomUUID().toString().replace("-", "").substring(0, 10); // 10자리 비밀번호 생성
         return User.builder()
                 .userId(email)
                 .userName(email) //name 닉네임이 겹치지 않게 email로 수정함
+                .image(imageUrl) // .image(profile) 이건 구글 이미지인데 기본 프로필로 수정함
                 .email(email)
-                .image(profile)
                 .role(Role.USER)
                 .loginType(LoginType.GUEST) //최초가입 guest
                 .userStatus(UserStatus.INACTIVE)

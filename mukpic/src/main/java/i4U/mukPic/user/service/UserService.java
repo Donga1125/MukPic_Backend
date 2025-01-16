@@ -392,40 +392,33 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public boolean isUserIdDuplicate(String userId, String email) {
-        try {
+        if (userRepository.existsByUserId(userId)) {
             UserRequestDTO.Register register = new UserRequestDTO.Register();
             register.setEmail(email);
             User user = checkUserStatus(register);
 
-            if (user != null && user.getUserStatus() == UserStatus.INACTIVE) {
+            if (user != null && user.getUserStatus() == UserStatus.INACTIVE && user.getUserId().equals(userId)) {
                 return false;
             }
-        } catch (BusinessLogicException e) {
-            if (e.getExceptionCode() != ExceptionCode.DUPLICATE_EMAIL_ERROR) {
-                throw e;
-            }
+            return true;
         }
-
-        return userRepository.existsByUserId(userId);
+        return false;
     }
+
 
     @Transactional(readOnly = true)
     public boolean isUserNameDuplicate(String userName, String email) {
-        try {
+        if (userRepository.existsByUserName(userName)) {
             UserRequestDTO.Register register = new UserRequestDTO.Register();
             register.setEmail(email);
             User user = checkUserStatus(register);
 
-            if (user != null && user.getUserStatus() == UserStatus.INACTIVE) {
+            if (user != null && user.getUserStatus() == UserStatus.INACTIVE && user.getUserName().equals(userName)) {
                 return false;
             }
-        } catch (BusinessLogicException e) {
-            if (e.getExceptionCode() != ExceptionCode.DUPLICATE_EMAIL_ERROR) {
-                throw e;
-            }
+            return true;
         }
-
-        return userRepository.existsByUserName(userName);
+        return false;
     }
 
     public Map<String, Object> handleEmailDuplicationCheck(String email) {

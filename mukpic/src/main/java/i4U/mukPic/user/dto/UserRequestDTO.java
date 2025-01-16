@@ -41,7 +41,7 @@ public class UserRequestDTO {
         private String nationality;
 
         @NotNull(message = "종교가 있으신가요?")
-        private Religion religion = Religion.NONE;
+        private Religion religion = Religion.ATHEISM;
 
         @NotNull
         private Boolean agree;
@@ -83,7 +83,7 @@ public class UserRequestDTO {
         }
 
         public void setReligion(Religion religion) {
-            this.religion = religion != null ? religion : Religion.NONE;
+            this.religion = religion != null ? religion : Religion.ATHEISM;
         }
 
         public void setAgree(Boolean agree) {
