@@ -2,6 +2,7 @@ package i4U.mukPic.global.auth.service;
 
 import i4U.mukPic.global.auth.PrincipalDetails;
 import i4U.mukPic.global.auth.userinfo.OAuth2UserInfo;
+import i4U.mukPic.image.service.ImageService;
 import i4U.mukPic.user.entity.Allergy;
 import i4U.mukPic.user.entity.ChronicDisease;
 import i4U.mukPic.user.entity.DietaryPreference;
@@ -26,6 +27,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
     private final ApplicationContext applicationContext;
+    private final ImageService imageService;
 
     public PasswordEncoder getPasswordEncoder() {
         return applicationContext.getBean(PasswordEncoder.class);
@@ -63,13 +65,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     }
 
                     existingUser.updateUserName(oAuth2UserInfo.name());
-                    existingUser.updateImage(oAuth2UserInfo.profile());
+                    // existingUser.updateImage(oAuth2UserInfo.profile());
 
-                    String existingPassword = oAuth2UserInfo.toEntity().getPassword();
+                    String existingPassword = oAuth2UserInfo.toEntity(imageService).getPassword();
                     String encodedPassword = getPasswordEncoder().encode(existingPassword);
                     existingUser.updatePassword(encodedPassword);
 
-                    existingUser.updateAgree(oAuth2UserInfo.toEntity().getAgree());
+                    existingUser.updateAgree(oAuth2UserInfo.toEntity(imageService).getAgree());
 
                     if (existingUser.getAllergy() == null) {
                         Allergy allergy = new Allergy();
@@ -93,7 +95,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 })
                 .orElseGet(() -> {
                     // 신규 사용자 생성
-                    User user = oAuth2UserInfo.toEntity();
+                    User user = oAuth2UserInfo.toEntity(imageService);
                     user.passwordEncode(getPasswordEncoder()); // 비밀번호 암호화
                     return userRepository.save(user);
                 });

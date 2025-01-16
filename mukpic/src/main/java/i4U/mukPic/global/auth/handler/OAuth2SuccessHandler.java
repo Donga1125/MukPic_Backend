@@ -33,9 +33,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
             String redirectUrl;
             if (user.getLoginType() == LoginType.GUEST) {
-                redirectUrl = BASE_URI + "/signup/step3";
+                redirectUrl = BASE_URI + "/signup/google";
             } else {
-                redirectUrl = BASE_URI;
+                redirectUrl = BASE_URI + "/login/withGoogle/success";
             }
 
             response.setHeader("Authorization", "Bearer " + accessToken);
