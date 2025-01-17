@@ -179,22 +179,6 @@ public class JwtTokenProvider {
                 .map(authHeader -> authHeader.substring(7));
     }
 
-    // Request에서 userId 추출 (로컬 및 Google 로그인 사용자 지원) - 추가된 메서드
-    public Optional<String> extractUserIdFromRequest(HttpServletRequest request) {
-        String token = extractAccessToken(request).orElse(null);
-        if (token == null) {
-            return Optional.empty();
-        }
-
-        try {
-            Claims claims = parseClaims(token);
-            return Optional.ofNullable(claims.getSubject()); // Subject에서 userId 또는 email 반환
-        } catch (JwtException e) {
-            log.error("Failed to extract userId from token: {}", e.getMessage());
-            return Optional.empty();
-        }
-    }
-
     public Optional<String> extractSubject(String accessToken) {
         try {
             Claims claims = parseClaims(accessToken);

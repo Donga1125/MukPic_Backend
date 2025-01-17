@@ -38,6 +38,32 @@ public class LoginController {
                 .body(responseBody);
     }
 
+    @PostMapping("/email-login")
+    public ResponseEntity<Map<String, Object>> loginWithEmail(@RequestBody Map<String, String> requestBody) {
+        // 요청에서 이메일 추출
+        String email = requestBody.get("email");
+        if (email == null || email.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Email is required"));
+        }
+
+        // 로그인 서비스 호출
+        Map<String, String> tokens = loginService.loginWithEmail(email);
+
+        // JSON 응답 본문 생성
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("status", "success");
+        responseBody.put("message", "Login successful");
+
+        // 응답 헤더 추가
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + tokens.get("accessToken"));
+        headers.add("refreshToken", tokens.get("refreshToken"));
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(responseBody);
+    }
+
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(@RequestHeader("Authorization") String authorization) {
         // Authorization 헤더에서 Bearer 제거
