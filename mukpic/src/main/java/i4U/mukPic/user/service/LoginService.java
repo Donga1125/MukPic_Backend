@@ -53,6 +53,29 @@ public class LoginService {
         return tokens;
     }
 
+    public Map<String, String> loginWithEmail(String email) {
+        // Role을 GrantedAuthority로 변환 (기본 "USER"로 설정)
+        GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                email, null, Collections.singletonList(authority)
+        );
+
+        // Access Token 생성
+        String accessToken = jwtTokenProvider.generateAccessToken(authentication);
+
+        // Refresh Token 생성 및 저장
+        jwtTokenProvider.generateRefreshToken(authentication, accessToken);
+
+        // 저장된 Refresh Token 가져오기
+        String refreshToken = tokenService.findByAccessTokenOrThrow(accessToken).getRefreshToken();
+
+        // Access Token과 Refresh Token을 반환
+        Map<String, String> tokens = new HashMap<>();
+        tokens.put("accessToken", accessToken);
+        tokens.put("refreshToken", refreshToken);
+        return tokens;
+    }
+
     @Transactional
     public void logout(String accessToken) {
         // Access Token 유효성 검증

@@ -81,3 +81,6 @@ openai:
 
 ai:
   base-url: ${AI_BASE_URL}
+
+front:
+  base-uri: ${FRONT_BASE_URI}

@@ -54,7 +54,9 @@ public class TokenService {
     }
 
     public boolean existsByAccessToken(String accessToken) {
-        return tokenRepository.existsByAccessToken(accessToken);
+        boolean exists = tokenRepository.existsByAccessToken(accessToken);
+        log.info("Checking existence of Access Token in Redis: {}, exists: {}", accessToken, exists);
+        return exists;
     }
 
 }
