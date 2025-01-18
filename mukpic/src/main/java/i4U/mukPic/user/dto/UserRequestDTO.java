@@ -29,15 +29,13 @@ public class UserRequestDTO {
         private String image;
 
         @NotBlank
-        @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$",
-                message = "비밀번호는 8자 이상, 영문과 숫자를 모두 포함해야 합니다.")
+        @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()])[A-Za-z\\d!@#$%^&*()]{8,}$",
+                message = "비밀번호는 8자 이상, 영문, 숫자, 그리고 특수문자(!@#$%^&*())를 모두 포함해야 합니다.")
         private String password;
 
         @NotBlank
         private String userName;
 
-        @Pattern(regexp = "^[A-Za-z ]+$",
-                message = "국가는 영문으로만 작성되어야 합니다.")
         private String nationality;
 
         @NotNull(message = "종교가 있으신가요?")
@@ -65,8 +63,8 @@ public class UserRequestDTO {
         }
 
         public void setPassword(String password) {
-            if (password == null || password.length() < 8) {
-                throw new IllegalArgumentException("비밀번호는 8자 이상이어야 합니다.");
+            if (password == null || !password.matches("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()])[A-Za-z\\d!@#$%^&*()]{8,}$")) {
+                throw new IllegalArgumentException("비밀번호는 8자 이상, 영문, 숫자, 그리고 특수문자(!@#$%^&*())를 모두 포함해야 합니다.");
             }
             this.password = password;
         }
@@ -121,7 +119,7 @@ public class UserRequestDTO {
         private String nationality;          // 국적
         private Religion religion;           // 종교
         private List<String> allergyTypes;   // 알러지 정보
-        private List<String> chronicDiseases; // 만성질환 정보
+        private List<String> chronicDiseaseTypes; // 만성질환 정보
         private List<String> dietaryPreferences;
     }
 
@@ -129,8 +127,8 @@ public class UserRequestDTO {
     @NoArgsConstructor
     public static class UpdatePassword {
         @NotBlank
-        @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$",
-                message = "비밀번호는 8자 이상, 영문과 숫자를 모두 포함해야 합니다.")
+        @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()])[A-Za-z\\d!@#$%^&*()]{8,}$",
+                message = "비밀번호는 8자 이상, 영문, 숫자, 그리고 특수문자(!@#$%^&*())를 모두 포함해야 합니다.")
         private String password;
     }
 

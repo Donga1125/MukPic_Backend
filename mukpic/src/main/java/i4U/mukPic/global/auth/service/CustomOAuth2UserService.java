@@ -64,14 +64,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                         existingUser.updateUserStatus(UserStatus.ACTIVE);
                     }
 
-                    existingUser.updateUserName(oAuth2UserInfo.name());
+                    if (existingUser.getCreatedAt() == null) {
+                        existingUser.updateUserName(oAuth2UserInfo.name());
+
+                        String existingPassword = oAuth2UserInfo.toEntity(imageService).getPassword();
+                        String encodedPassword = getPasswordEncoder().encode(existingPassword);
+                        existingUser.updatePassword(encodedPassword);
+
+                        existingUser.updateAgree(oAuth2UserInfo.toEntity(imageService).getAgree());
+                    }
                     // existingUser.updateImage(oAuth2UserInfo.profile());
-
-                    String existingPassword = oAuth2UserInfo.toEntity(imageService).getPassword();
-                    String encodedPassword = getPasswordEncoder().encode(existingPassword);
-                    existingUser.updatePassword(encodedPassword);
-
-                    existingUser.updateAgree(oAuth2UserInfo.toEntity(imageService).getAgree());
 
                     if (existingUser.getAllergy() == null) {
                         Allergy allergy = new Allergy();

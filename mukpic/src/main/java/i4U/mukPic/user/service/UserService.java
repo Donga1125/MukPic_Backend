@@ -240,8 +240,8 @@ public class UserService {
             Allergy updatedAllergy = createOrUpdateAllergy(user, patch.getAllergyTypes());
             user.updateAllergy(updatedAllergy);
         }
-        if (patch.getChronicDiseases() != null) {
-            ChronicDisease updatedChronicDisease = createOrUpdateChronicDisease(user, patch.getChronicDiseases());
+        if (patch.getChronicDiseaseTypes() != null) {
+            ChronicDisease updatedChronicDisease = createOrUpdateChronicDisease(user, patch.getChronicDiseaseTypes());
             user.updateChronicDisease(updatedChronicDisease);
         }
         if (patch.getDietaryPreferences() != null) {
