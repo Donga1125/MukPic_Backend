@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 public class CommunityService {
 
     private final CommunityRepository communityRepository;
-    private final UserRepository userRepository;
     private final ImageService imageService;
 
     //게시글 생성
@@ -42,11 +41,11 @@ public class CommunityService {
         List<String> imageUrls = postDto.getImageUrl()!= null ? postDto.getImageUrl(): new ArrayList<>();
 
         imageService.updateReferenceIdAndType(community.getCommunityKey(), ImageType.COMMUNITY, imageUrls);
-        return createCommunityResponseDto(community);
+        return createCommunityResponseDto(community, user);
     }
 
     @Transactional(readOnly = true)
-    public Page<CommunityResponseDto> getAllCommunityFeeds(String sortBy, Pageable pageable) {
+    public Page<CommunityResponseDto> getAllCommunityFeeds(String sortBy, Pageable pageable, User user) {
         Page<Community> communities;
         Sort sort = "likes".equalsIgnoreCase(sortBy)
                 ? Sort.by(Sort.Direction.DESC, "likeCount")
@@ -55,11 +54,11 @@ public class CommunityService {
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
         communities = communityRepository.findAll(sortedPageable);
 
-        return communities.map(community -> createCommunityResponseDto(community));
+        return communities.map(community -> createCommunityResponseDto(community, user));
     }
 
     @Transactional(readOnly = true)
-    public Page<CommunityResponseDto> getCommunityFeedsByCategory(Category category, String sortBy, Pageable pageable) {
+    public Page<CommunityResponseDto> getCommunityFeedsByCategory(Category category, String sortBy, Pageable pageable, User user) {
         Page<Community> communities;
         Sort sort = "likes".equalsIgnoreCase(sortBy)
                 ? Sort.by(Sort.Direction.DESC, "likeCount")
@@ -68,31 +67,31 @@ public class CommunityService {
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
         communities = communityRepository.findByCategory(category, sortedPageable);
 
-        return communities.map(community -> createCommunityResponseDto(community));
+        return communities.map(community -> createCommunityResponseDto(community, user));
     }
 
 
 
     //게시글 상세 조회
-    public CommunityResponseDto findCommunityById (Long communityKey){
+    public CommunityResponseDto findCommunityById (Long communityKey, User user){
         Community community = checkFeed(communityKey);
-        return createCommunityResponseDto(community);
+        return createCommunityResponseDto(community, user);
     }
 
     //내가 쓴 게시글 목록 조회
-    public Page<CommunityResponseDto> findMyCommunityFeeds(Long userKey, Pageable pageable) {
-        return communityRepository.findAllByUser_UserKeyOrderByCreatedAtDesc(userKey, pageable)
-                .map(community -> createCommunityResponseDto(community));
+    public Page<CommunityResponseDto> findMyCommunityFeeds(User user, Pageable pageable) {
+        return communityRepository.findAllByUser_UserKeyOrderByCreatedAtDesc(user.getUserKey(), pageable)
+                .map(community -> createCommunityResponseDto(community, user));
     }
 
     // 내가 좋아요를 누른 게시글 조회
-    public Page<CommunityResponseDto> findLikedCommunities(Long userKey, Pageable pageable) {
-        return communityRepository.findByFeedLikes_User_UserKeyOrderByCreatedAtDesc(userKey, pageable)
-                .map(community -> createCommunityResponseDto(community));
+    public Page<CommunityResponseDto> findLikedCommunities(User user, Pageable pageable) {
+        return communityRepository.findByFeedLikes_User_UserKeyOrderByCreatedAtDesc(user.getUserKey(), pageable)
+                .map(community -> createCommunityResponseDto(community, user));
     }
 
     //게시글 수정
-    public CommunityResponseDto updateFeed(Long communityKey, CommunityRequestDto.Patch patchDto) {
+    public CommunityResponseDto updateFeed(Long communityKey, CommunityRequestDto.Patch patchDto, User user) {
         Community existingFeed = checkFeed(communityKey);
 
         if (patchDto.getTitle() != null) {
@@ -108,7 +107,7 @@ public class CommunityService {
             existingFeed.updateCategory(Category.valueOf(patchDto.getCategory().toUpperCase()));
         }
 
-        return createCommunityResponseDto(existingFeed);
+        return createCommunityResponseDto(existingFeed, user);
     }
 
     //게시글 삭제
@@ -126,10 +125,12 @@ public class CommunityService {
         return community;
     }
 
-    public CommunityResponseDto createCommunityResponseDto (Community community) {
+    public CommunityResponseDto createCommunityResponseDto (Community community, User user) {
+        boolean isLiked = community.getFeedLikes().stream()
+                .anyMatch(like -> like.getUser().equals(user));
         List<String> imageUrls = imageService.getImagesByReferenceIdAndType(community.getCommunityKey(), ImageType.COMMUNITY);
 
-        return new CommunityResponseDto(community, imageUrls);
+        return new CommunityResponseDto(community, imageUrls, isLiked);
     }
 
 }

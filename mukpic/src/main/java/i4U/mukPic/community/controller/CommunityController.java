@@ -42,13 +42,15 @@ public class CommunityController {
     public ResponseEntity<Page<CommunityResponseDto>> getCommunityFeeds(
             @RequestParam(defaultValue = "ALL") Category category,
             @RequestParam(defaultValue = "latest") String sortBy,
-            Pageable pageable) {
+            HttpServletRequest request, Pageable pageable) {
+
+        User user = userService.getUserFromRequest(request);
         Page<CommunityResponseDto> responseDtos;
 
         if ("ALL".equalsIgnoreCase(String.valueOf(category))) {
-            responseDtos = communityService.getAllCommunityFeeds(sortBy, pageable);
+            responseDtos = communityService.getAllCommunityFeeds(sortBy, pageable, user);
         } else {
-            responseDtos = communityService.getCommunityFeedsByCategory(category, sortBy, pageable);
+            responseDtos = communityService.getCommunityFeedsByCategory(category, sortBy, pageable, user);
         }
 
         return new ResponseEntity<>(responseDtos, HttpStatus.OK);
@@ -59,7 +61,7 @@ public class CommunityController {
     public ResponseEntity getMyCommunityFeed (HttpServletRequest request, Pageable pageable) {
 
         User user = userService.getUserFromRequest(request);
-        Page<CommunityResponseDto> myCommunities = communityService.findMyCommunityFeeds(user.getUserKey(), pageable);
+        Page<CommunityResponseDto> myCommunities = communityService.findMyCommunityFeeds(user, pageable);
 
         return new ResponseEntity<>(myCommunities, HttpStatus.OK);
 
@@ -69,15 +71,16 @@ public class CommunityController {
     @GetMapping("/likedCommunities")
     public ResponseEntity getLikedCommunities(HttpServletRequest request, Pageable pageable) {
         User user = userService.getUserFromRequest(request);
-        Page<CommunityResponseDto> likedCommunities = communityService.findLikedCommunities(user.getUserKey(), pageable);
+        Page<CommunityResponseDto> likedCommunities = communityService.findLikedCommunities(user, pageable);
 
         return new ResponseEntity<>(likedCommunities, HttpStatus.OK);
     }
 
     //커뮤니티 글 상세 조회
     @GetMapping("{community-key}")
-    public ResponseEntity getCommunityFeed (@PathVariable ("community-key") Long communityKey){
-        CommunityResponseDto responseDto = communityService.findCommunityById(communityKey);
+    public ResponseEntity getCommunityFeed (@PathVariable ("community-key") Long communityKey, HttpServletRequest request){
+        User user = userService.getUserFromRequest(request);
+        CommunityResponseDto responseDto = communityService.findCommunityById(communityKey, user);
 
         return new ResponseEntity(responseDto, HttpStatus.OK);
     }
@@ -85,8 +88,10 @@ public class CommunityController {
 
     //커뮤니티 글 수정
     @PatchMapping("{community-key}")
-    public ResponseEntity patchCommunityFeed (@PathVariable ("community-key") Long communityKey, @RequestBody CommunityRequestDto.Patch patchDto){
-        CommunityResponseDto responseDto = communityService.updateFeed(communityKey, patchDto);
+    public ResponseEntity patchCommunityFeed (@PathVariable ("community-key") Long communityKey, @RequestBody CommunityRequestDto.Patch patchDto,
+                                              HttpServletRequest request){
+        User user = userService.getUserFromRequest(request);
+        CommunityResponseDto responseDto = communityService.updateFeed(communityKey, patchDto,user);
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
