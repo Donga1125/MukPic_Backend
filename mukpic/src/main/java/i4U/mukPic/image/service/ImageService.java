@@ -141,7 +141,7 @@ public class ImageService {
 
     // 기본 이미지 URL을 반환하는 메서드
     public String getDefaultImageUrl() {
-        return "https://mukpic-image.s3.ap-northeast-2.amazonaws.com/NpcNmlOcp02.jpeg";
+        return "https://mukpic-image.s3.ap-northeast-2.amazonaws.com/PROFILE/1e9fe959-5874-4ad0-9aa4-bffc7f882534.png";
     }
 
     // S3 버킷에서 파일 삭제
