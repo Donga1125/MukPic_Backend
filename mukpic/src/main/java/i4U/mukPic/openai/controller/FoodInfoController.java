@@ -30,7 +30,6 @@ public class FoodInfoController {
             @RequestBody Map<String, String> requestBody,
             HttpServletRequest request
     ) {
-        // 1. 유저가 입력한 키워드 추출
         String keyword = requestBody.get("keyword");
         if (keyword == null || keyword.isBlank()) {
             throw new BusinessLogicException(ExceptionCode.INVALID_REQUEST_BODY);
@@ -38,10 +37,9 @@ public class FoodInfoController {
 
         User user = userService.getUserFromRequest(request);
 
-        // 3. ImageAnalysisService 호출
-        Map<String, Object> response = imageAnalysisService.getFoodInfoWithKeyword(keyword, user);
+        // ImageAnalysisService 호출
+        Map<String, Object> response = imageAnalysisService.getFoodInfoFromOpenAI(keyword, user);
 
-        // 4. 최종 결과 반환
         return ResponseEntity.ok(response);
     }
 }

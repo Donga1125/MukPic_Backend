@@ -17,7 +17,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
-    defer-datasource-initialization: true
+
   mail:
     host: smtp.gmail.com
     port: 587
@@ -44,10 +44,6 @@ spring:
             client-secret: ${GOOGLE_SECRET}
             scope: profile, email
 
-  sql:
-    init:
-      data-locations:
-        - classpath:data.sql
 server:
   port: 8080
 

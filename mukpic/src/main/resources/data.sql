@@ -132,4 +132,4 @@ VALUES
     'A nutritious and savory Korean soup made with seaweed (miyeok) and beef. This dish is traditionally enjoyed on birthdays and postpartum recovery due to its health benefits and cultural significance.',
     '["Dried seaweed (miyeok), soaked and rinsed", "Beef (brisket or flank, thinly sliced)", "Garlic (minced)", "Soy sauce", "Sesame oil", "Water or beef stock", "Salt"]',
     '["Soak the dried seaweed in water until it rehydrates. Rinse thoroughly, drain, and cut into bite-sized pieces.", "Heat sesame oil in a pot and sauté the sliced beef until lightly browned. Add minced garlic and stir until fragrant.", "Add the prepared seaweed to the pot and sauté for a few minutes to combine the flavors.", "Pour water or beef stock into the pot and bring to a boil. Reduce the heat and simmer for about 20-30 minutes to allow the flavors to develop.", "Season with soy sauce and salt to taste.", "Serve hot in a bowl and enjoy the comforting and nourishing 소고기미역국!"]'
-);
+);b

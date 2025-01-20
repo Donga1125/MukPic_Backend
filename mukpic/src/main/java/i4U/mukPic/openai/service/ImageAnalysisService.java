@@ -17,6 +17,7 @@ public class ImageAnalysisService {
     private final WebClient webClient;
     private final OpenAIService openAIService;
     private final FoodInfoRepository foodInfoRepository;
+    private final OpenAIKeywordService openAIKeywordService;
 
     // FastAPI 호출 메서드
     public Map<String, Object> callFastAPIServer(String imageUrl) {
@@ -73,29 +74,17 @@ public class ImageAnalysisService {
         return response;
     }
 
-    public Map<String, Object> getFoodInfoWithKeyword(String keyword, User user) {
-        // 1. FoodInfo 데이터베이스에서 음식 정보 조회
-        FoodInfo foodInfo = foodInfoRepository.findByFoodName(keyword)
-                .orElseThrow(() -> new RuntimeException("해당 Food 정보를 찾을 수 없습니다: " + keyword));
-
-        // 2. OpenAI API 호출 (유저 정보와 키워드 전달)
-        String allergyInfo;
+    public Map<String, Object> getFoodInfoFromOpenAI(String keyword, User user) {
+        // OpenAIKeywordService 호출 (유저 정보를 포함)
+        Map<String, Object> openAIResponse;
         try {
-            allergyInfo = openAIService.generateFoodInfoWithUserDetails(keyword, user);
+            openAIResponse = openAIKeywordService.getFoodDetailsByKeyword(keyword, user);
         } catch (Exception e) {
             throw new RuntimeException("OpenAI API 호출 실패: " + e.getMessage());
         }
 
-        // 3. FoodInfo와 OpenAI 응답 데이터를 조합
-        Map<String, Object> response = new HashMap<>();
-        response.put("foodName", foodInfo.getFoodName());
-        response.put("engFoodName", foodInfo.getEngFoodName());
-        response.put("foodDescription", foodInfo.getDescription());
-        response.put("ingredients", foodInfo.getIngredients());
-        response.put("recipe", foodInfo.getRecipe());
-        response.put("allergyInformation", allergyInfo);
-
-        return response;
+        // 응답 데이터 반환
+        return openAIResponse;
     }
 
 }
