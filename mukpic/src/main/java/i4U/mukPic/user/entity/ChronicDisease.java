@@ -17,7 +17,7 @@ public class ChronicDisease {
     private Long chronicDiseaseKey;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_chronic_diseases", joinColumns = @JoinColumn(name = "chronicDieaseKey"))
+    @CollectionTable(name = "user_chronic_diseases", joinColumns = @JoinColumn(name = "chronicDiseaseKey"))
     @Enumerated(EnumType.STRING)
     @Column(name = "disease_type")
     private Set<ChronicDiseaseType> diseases = new HashSet<>();
