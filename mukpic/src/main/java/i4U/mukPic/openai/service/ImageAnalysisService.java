@@ -31,7 +31,7 @@ public class ImageAnalysisService {
                     .bodyToMono(Map.class)
                     .block();
         } catch (Exception e) {
-            throw new RuntimeException("FastAPI 호출 실패: " + e.getMessage());
+            throw new RuntimeException("FastAPI Call Failed: " + e.getMessage());
         }
     }
 
@@ -40,7 +40,7 @@ public class ImageAnalysisService {
         if (fastAPIResponse != null && fastAPIResponse.containsKey("result")) {
             return (String) fastAPIResponse.get("result");
         } else {
-            throw new RuntimeException("FastAPI 응답이 비어있거나 잘못되었습니다.");
+            throw new RuntimeException("It's not a picture of the food or the AI couldn't figure out what kind of food it was.");
         }
     }
 
@@ -52,14 +52,14 @@ public class ImageAnalysisService {
 
         // 2. FoodInfo 데이터베이스 조회
         FoodInfo foodInfo = foodInfoRepository.findByFoodName(foodName)
-                .orElseThrow(() -> new RuntimeException("해당 Food 정보를 찾을 수 없습니다: " + foodName));
+                .orElseThrow(() -> new RuntimeException("No corresponding Food information found: " + foodName));
 
         // 3. OpenAI 호출 (Allergy Information 및 사용자 정보만 요청)
         String allergyInfo;
         try {
             allergyInfo = openAIService.generateFoodInfoWithUserDetails(foodName, user);
         } catch (Exception e) {
-            throw new RuntimeException("OpenAI API 호출 실패: " + e.getMessage());
+            throw new RuntimeException("OpenAI Call Failed: " + e.getMessage());
         }
 
         // 4. 데이터베이스 값과 OpenAI 응답 조합
@@ -80,7 +80,7 @@ public class ImageAnalysisService {
         try {
             openAIResponse = openAIKeywordService.getFoodDetailsByKeyword(keyword, user);
         } catch (Exception e) {
-            throw new RuntimeException("OpenAI API 호출 실패: " + e.getMessage());
+            throw new RuntimeException("OpenAI Call Failed: " + e.getMessage());
         }
 
         // 응답 데이터 반환
