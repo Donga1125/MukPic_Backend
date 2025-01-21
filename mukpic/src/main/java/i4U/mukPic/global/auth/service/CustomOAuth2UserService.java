@@ -59,42 +59,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     @Transactional
     private User getOrSave(OAuth2UserInfo oAuth2UserInfo) {
         return userRepository.findByEmail(oAuth2UserInfo.email())
-                .map(existingUser -> {
-                    if (existingUser.getUserStatus() == UserStatus.INACTIVE) {
-                        existingUser.updateUserStatus(UserStatus.ACTIVE);
-                    }
-
-                    if (existingUser.getCreatedAt() == null) {
-                        existingUser.updateUserName(oAuth2UserInfo.name());
-
-                        String existingPassword = oAuth2UserInfo.toEntity(imageService).getPassword();
-                        String encodedPassword = getPasswordEncoder().encode(existingPassword);
-                        existingUser.updatePassword(encodedPassword);
-
-                        existingUser.updateAgree(oAuth2UserInfo.toEntity(imageService).getAgree());
-                    }
-                    // existingUser.updateImage(oAuth2UserInfo.profile());
-
-                    if (existingUser.getAllergy() == null) {
-                        Allergy allergy = new Allergy();
-                        allergy.setUser(existingUser);
-                        existingUser.setAllergy(allergy);
-                    }
-
-                    if (existingUser.getChronicDisease() == null) {
-                        ChronicDisease chronicDisease = new ChronicDisease();
-                        chronicDisease.setUser(existingUser);
-                        existingUser.setChronicDisease(chronicDisease);
-                    }
-
-                    if (existingUser.getDietaryPreference() == null) {
-                        DietaryPreference dietaryPreference = new DietaryPreference();
-                        dietaryPreference.setUser(existingUser);
-                        existingUser.setDietaryPreference(dietaryPreference);
-                    }
-
-                    return userRepository.save(existingUser);
-                })
                 .orElseGet(() -> {
                     // 신규 사용자 생성
                     User user = oAuth2UserInfo.toEntity(imageService);

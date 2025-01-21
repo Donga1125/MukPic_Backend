@@ -55,8 +55,8 @@ public class EmailSendService {
 
     public String joinEmail(String email) {
         makeRandomNum();
-        String title = "회원 가입 인증 이메일입니다!";
-        String content = "인증 번호는 " + authNumber + "입니다.";
+        String title = "mukpic membership authentication email!";
+        String content = "The authentication number is " + authNumber;
         mailSend(serviceName, email, title, content);
         return authNumber;
     }
