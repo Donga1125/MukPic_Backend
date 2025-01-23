@@ -239,14 +239,26 @@ public class UserService {
         if (patch.getAllergyTypes() != null) {
             Allergy updatedAllergy = createOrUpdateAllergy(user, patch.getAllergyTypes());
             user.updateAllergy(updatedAllergy);
+        } else if (user.getAllergy() == null) {
+            Allergy defaultAllergy = new Allergy();
+            defaultAllergy.setUser(user);
+            user.setAllergy(defaultAllergy);
         }
         if (patch.getChronicDiseaseTypes() != null) {
             ChronicDisease updatedChronicDisease = createOrUpdateChronicDisease(user, patch.getChronicDiseaseTypes());
             user.updateChronicDisease(updatedChronicDisease);
+        } else if (user.getChronicDisease() == null) {
+            ChronicDisease defaultChronicDisease = new ChronicDisease();
+            defaultChronicDisease.setUser(user);
+            user.setChronicDisease(defaultChronicDisease);
         }
         if (patch.getDietaryPreferences() != null) {
             DietaryPreference updatedPreference = createOrUpdateDietaryPreference(user, patch.getDietaryPreferences());
             user.updateDietaryPreference(updatedPreference);
+        } else if (user.getDietaryPreference() == null) {
+            DietaryPreference defaultPreference = new DietaryPreference();
+            defaultPreference.setUser(user);
+            user.setDietaryPreference(defaultPreference);
         }
         if (user.getLoginType() == LoginType.GUEST) {
             user.updateLoginType(LoginType.GOOGLE);
