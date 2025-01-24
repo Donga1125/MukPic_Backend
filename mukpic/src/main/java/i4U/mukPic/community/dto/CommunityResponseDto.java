@@ -19,6 +19,7 @@ public class CommunityResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    private Long userKey;
     private String userName;
     private String profileImage;
     private boolean isLiked;
@@ -32,6 +33,7 @@ public class CommunityResponseDto {
         this.likeCount = community.getLikeCount();
         this.createdAt = community.getCreatedAt();
         this.updatedAt = community.getUpdatedAt();
+        this.userKey = community.getUser().getUserKey();
         this.userName = community.getUser().getUserName();
         this.profileImage = community.getUser().getImage();
         this.isLiked = isLiked;
