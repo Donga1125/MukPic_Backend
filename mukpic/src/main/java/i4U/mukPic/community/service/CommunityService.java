@@ -107,6 +107,7 @@ public class CommunityService {
             existingFeed.updateCategory(Category.valueOf(patchDto.getCategory().toUpperCase()));
         }
 
+        communityRepository.save(existingFeed);
         return createCommunityResponseDto(existingFeed, user);
     }
 
