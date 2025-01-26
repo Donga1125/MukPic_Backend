@@ -44,7 +44,7 @@ public class OpenAIService {
                 "messages", List.of(
                         Map.of("role", "system", "content", "You are a helpful assistant."),
                         Map.of("role", "user", "content", String.format(
-                                "Reply only in English. Provide allergy-related information and any additional advice for the following food '%s'.\n\n%s",
+                                "Reply only in English. Provide a concise allergy-related advice (4-5 sentences) for the food '%s' based on the following user details. Avoid using special characters except for punctuation marks.\n\n%s",
                                 foodKeyword, userDetails
                         ))
                 ),
@@ -73,7 +73,8 @@ public class OpenAIService {
                 if (choices != null && !choices.isEmpty()) {
                     Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
                     if (message != null) {
-                        return (String) message.get("content");
+                        String content = (String) message.get("content");
+                        return content.replaceAll("[^a-zA-Z0-9.,!?\\s]", "").trim();
                     }
                 }
             }
