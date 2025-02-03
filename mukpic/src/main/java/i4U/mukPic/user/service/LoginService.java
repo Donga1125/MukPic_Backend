@@ -50,6 +50,9 @@ public class LoginService {
         Map<String, String> tokens = new HashMap<>();
         tokens.put("accessToken", accessToken);
         tokens.put("refreshToken", refreshToken);
+
+        tokens.put("userKey", String.valueOf(user.getUserKey()));
+
         return tokens;
     }
 
@@ -69,10 +72,13 @@ public class LoginService {
         // 저장된 Refresh Token 가져오기
         String refreshToken = tokenService.findByAccessTokenOrThrow(accessToken).getRefreshToken();
 
+        User user = authenticationService.findByEmail(email);
+
         // Access Token과 Refresh Token을 반환
         Map<String, String> tokens = new HashMap<>();
         tokens.put("accessToken", accessToken);
         tokens.put("refreshToken", refreshToken);
+        tokens.put("userKey", String.valueOf(user != null ? user.getUserKey() : null));
         return tokens;
     }
 
