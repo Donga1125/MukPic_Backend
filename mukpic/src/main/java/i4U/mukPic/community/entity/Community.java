@@ -9,6 +9,7 @@ import i4U.mukPic.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Formula;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,7 @@ public class Community extends Timestamped {
     @Column(nullable = false)
     private String content;
 
-    @Column(columnDefinition = "integer default 0", nullable = false)
+    @Formula("(SELECT COUNT(*) FROM community_likes cl WHERE cl.community_id = community_key)")
     private int likeCount;
 
     @Enumerated(EnumType.STRING)
