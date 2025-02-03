@@ -1,6 +1,7 @@
 package i4U.mukPic.likes.service;
 
 import i4U.mukPic.community.entity.Community;
+import i4U.mukPic.community.repository.CommunityRepository;
 import i4U.mukPic.community.service.CommunityService;
 import i4U.mukPic.global.exception.BusinessLogicException;
 import i4U.mukPic.global.exception.ExceptionCode;
@@ -20,6 +21,7 @@ import java.util.Optional;
 public class LikeService {
     private final UserService userService;
     private final CommunityService communityService;
+    private final CommunityRepository communityRepository;
     private final LikeRepository likeRepository;
 
 
@@ -38,6 +40,7 @@ public class LikeService {
                     .build();
 
             community.updateLikeCount(1);
+            communityRepository.save(community);
             likeRepository.save(communityLikes);
 
         }
@@ -51,6 +54,7 @@ public class LikeService {
                 () -> new BusinessLogicException(ExceptionCode.NOT_FOUND));
 
         community.updateLikeCount(-1);
+        communityRepository.save(community);
         likeRepository.deleteById(communityLikes.getCommunityKey());
     }
 }
