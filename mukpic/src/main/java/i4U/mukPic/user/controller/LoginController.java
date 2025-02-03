@@ -27,6 +27,7 @@ public class LoginController {
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("status", "success");
         responseBody.put("message", "Login successful");
+        responseBody.put("userKey", tokens.get("userKey"));
 
         // 응답 헤더 추가
         HttpHeaders headers = new HttpHeaders();
@@ -53,6 +54,7 @@ public class LoginController {
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("status", "success");
         responseBody.put("message", "Login successful");
+        responseBody.put("userKey", tokens.get("userKey"));
 
         // 응답 헤더 추가
         HttpHeaders headers = new HttpHeaders();
