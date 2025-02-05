@@ -32,14 +32,8 @@ public class AuthenticationService {
     }
 
     public User findByEmail(String email) {
-        User user = userRepository.findByEmail(email)
+        return userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessLogicException(ExceptionCode.USER_NOT_FOUND));
-
-        if (user.getUserStatus() != UserStatus.ACTIVE) {
-            throw new BusinessLogicException(ExceptionCode.USER_NOT_ACTIVE);
-        }
-
-        return user;
     }
 
 }
