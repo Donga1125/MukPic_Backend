@@ -57,8 +57,6 @@ public class LoginService {
     }
 
     public Map<String, String> loginWithEmail(String email) {
-        User user = authenticationService.findByEmail(email);
-
         // Role을 GrantedAuthority로 변환 (기본 "USER"로 설정)
         GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
         Authentication authentication = new UsernamePasswordAuthenticationToken(
@@ -73,6 +71,8 @@ public class LoginService {
 
         // 저장된 Refresh Token 가져오기
         String refreshToken = tokenService.findByAccessTokenOrThrow(accessToken).getRefreshToken();
+
+        User user = authenticationService.findByEmail(email);
 
         // Access Token과 Refresh Token을 반환
         Map<String, String> tokens = new HashMap<>();
